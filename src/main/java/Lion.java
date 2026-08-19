@@ -14,13 +14,25 @@ public class Lion {
         System.out.println("    What can I do for you?");
         System.out.println(line);
 
+        String[] list = new String[100];
+        int taskCount = 0;
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         while (!input.equals("bye")) {
             System.out.println(line);
-            System.out.println("    " + input);
-            System.out.println(line);
 
+            if(input.equals("list")) {
+                for(int i = 0; i < taskCount; i++) {
+                    System.out.println("    " + (i + 1) + ". " + list[i]);
+                }
+            }
+            else {
+                list[taskCount] = input;
+                taskCount++;
+
+                System.out.println("    added: " + input);
+            }
+            System.out.println(line);
             input = scanner.nextLine();
         }
         System.out.println(line);

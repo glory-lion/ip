@@ -24,7 +24,7 @@ public class Lion {
                 if (input.equals("list")) {
                     System.out.println("    Here are the tasks in your list:");
                     for (int i = 0; i < taskCount; i++) {
-                        System.out.println("    " + (i + 1) + ".[" + list[i].getTypeIcon() + "]" + "[" + list[i].getStatusIcon() + "] " + list[i].getDescription());
+                        System.out.println("    " + (i + 1) + "." + list[i]);
                     }
                 } else if (input.startsWith("todo")) {
                     String details = input.substring(4).trim();
@@ -35,7 +35,7 @@ public class Lion {
                     taskCount++;
 
                     System.out.println("    Got it. I've added this task:");
-                    System.out.println("      [T][ ] " + details);
+                    System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
 
                 } else if (input.startsWith("deadline")) {
@@ -49,7 +49,7 @@ public class Lion {
                     taskCount++;
 
                     System.out.println("    Got it. I've added this task:");
-                    System.out.println("      [D][ ] " + description + " (by: " + by + ")");
+                    System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
                 } else if (input.startsWith("event")) {
                     String details = input.substring(5).trim();
@@ -65,7 +65,7 @@ public class Lion {
                     taskCount++;
 
                     System.out.println("    Got it. I've added this task:");
-                    System.out.println("      [E][ ] " + description + " (from: " + from + " to: " + to + ")");
+                    System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
                 } else if (input.startsWith("mark")) {
                     String number = input.substring(5);
@@ -82,7 +82,20 @@ public class Lion {
 
                     System.out.println("    OK! I've marked this task as not done yet:");
                     System.out.println("     [ ] " + list[taskNumber].getDescription());
-                } else {
+                } else if(input.startsWith("delete")) {
+                    String number = input.substring(7);
+                    int taskNumber = Integer.parseInt(number) - 1;
+                    Task deletedTask = list[taskNumber];
+                    for(int i = taskNumber; i < taskCount - 1; i++) {
+                        list[i] = list[i + 1];
+                    }
+                    taskCount--;
+                    list[taskCount] = null;
+                    System.out.println("    Noted. I've removed this task:");
+                    System.out.println("      " + deletedTask);
+                    System.out.println("    Now you have " + taskCount + " tasks in the list");
+                }
+                else {
                     throw new LionException("I'm sorry, but I don't know what that means :-(");
                 }
             }

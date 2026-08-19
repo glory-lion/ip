@@ -23,4 +23,9 @@ public abstract class Task {
     }
 
     public abstract String getTypeIcon();
+
+    @Override
+    public String toString() {
+        return "[" + getTypeIcon() + "][" + getStatusIcon() + "] " + description;
+    }
  }

@@ -24,8 +24,48 @@ public class Lion {
             if(input.equals("list")) {
                 System.out.println("    Here are the tasks in your list:");
                 for(int i = 0; i < taskCount; i++) {
-                    System.out.println("    " + (i + 1) + ".["  + list[i].getStatusIcon() + "] " + list[i].getDescription());
+                    System.out.println("    " + (i + 1) + ".[" + list[i].getTypeIcon() + "]" + "["  + list[i].getStatusIcon() + "] " + list[i].getDescription());
                 }
+            }
+            else if(input.startsWith("todo")) {
+                String details = input.substring(5);
+                list[taskCount] = new Todo(details);
+                taskCount++;
+
+                System.out.println("    Got it. I've added this task:");
+                System.out.println("      [T][ ] " + details);
+                System.out.println("    Now you have " + taskCount + " tasks in the list");
+
+            }
+            else if(input.startsWith("deadline")) {
+                String details = input.substring(9);
+                String[] parts = details.split(" /by ");
+
+                String description = parts[0];
+                String by = parts[1];
+
+                list[taskCount] = new Deadline(description, by);
+                taskCount++;
+
+                System.out.println("    Got it. I've added this task:");
+                System.out.println("      [D][ ] " + description + " (by: " + by + ")");
+                System.out.println("    Now you have " + taskCount + " tasks in the list");
+            }
+            else if(input.startsWith("event")) {
+                String details = input.substring(6);
+                String[] fromParts = details.split(" /from ");
+                String[] toParts = fromParts[1].split(" /to ");
+
+                String description = fromParts[0];
+                String from = toParts[0];
+                String to = toParts[1];
+
+                list[taskCount] = new Event(description, from, to);
+                taskCount++;
+
+                System.out.println("    Got it. I've added this task:");
+                System.out.println("      [E][ ] " + description + " (from: " + from + " to: " + to + ")");
+                System.out.println("    Now you have " + taskCount + " tasks in the list");
             }
             else if(input.startsWith("mark")) {
                 String number = input.substring(5);
@@ -44,12 +84,7 @@ public class Lion {
                 System.out.println("    OK! I've marked this task as not done yet:");
                 System.out.println("     [ ] " + list[taskNumber].getDescription());
             }
-            else {
-                list[taskCount] = new Task(input);
-                taskCount++;
 
-                System.out.println("    added: " + input);
-            }
             System.out.println(line);
             input = scanner.nextLine();
         }

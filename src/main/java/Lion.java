@@ -18,15 +18,18 @@ public class Lion {
         int taskCount = 0;
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
-        while (!input.equals("bye")) {
+        while (CommandType.from(input) != CommandType.BYE) {
             System.out.println(line);
             try {
-                if (input.equals("list")) {
+                CommandType command = CommandType.from(input);
+                switch (command) {
+                case LIST:
                     System.out.println("    Here are the tasks in your list:");
                     for (int i = 0; i < taskCount; i++) {
                         System.out.println("    " + (i + 1) + "." + list[i]);
                     }
-                } else if (input.startsWith("todo")) {
+                    break;
+                case TODO: {
                     String details = input.substring(4).trim();
                     if (details.isEmpty()) {
                         throw new LionException("The description of a todo cannot be empty.");
@@ -37,8 +40,9 @@ public class Lion {
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
-
-                } else if (input.startsWith("deadline")) {
+                    break;
+                }
+                case DEADLINE: {
                     String details = input.substring(9);
                     String[] parts = details.split(" /by ");
 
@@ -51,7 +55,9 @@ public class Lion {
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
-                } else if (input.startsWith("event")) {
+                    break;
+                }
+                case EVENT: {
                     String details = input.substring(5).trim();
                     String[] fromParts = details.split(" /from ");
                     String[] toParts = fromParts[1].split(" /to ");
@@ -67,26 +73,31 @@ public class Lion {
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
-                } else if (input.startsWith("mark")) {
+                    break;
+                }
+                case MARK: {
                     String number = input.substring(5);
                     int taskNumber = Integer.parseInt(number) - 1;
                     list[taskNumber].markAsDone();
 
                     System.out.println("    Nice! I've marked this task as done:");
                     System.out.println("     [X] " + list[taskNumber].getDescription());
-
-                } else if (input.startsWith("unmark")) {
+                    break;
+                }
+                case UNMARK: {
                     String number = input.substring(7);
                     int taskNumber = Integer.parseInt(number) - 1;
                     list[taskNumber].markAsNotDone();
 
                     System.out.println("    OK! I've marked this task as not done yet:");
                     System.out.println("     [ ] " + list[taskNumber].getDescription());
-                } else if(input.startsWith("delete")) {
+                    break;
+                }
+                case DELETE: {
                     String number = input.substring(7);
                     int taskNumber = Integer.parseInt(number) - 1;
                     Task deletedTask = list[taskNumber];
-                    for(int i = taskNumber; i < taskCount - 1; i++) {
+                    for (int i = taskNumber; i < taskCount - 1; i++) {
                         list[i] = list[i + 1];
                     }
                     taskCount--;
@@ -94,12 +105,14 @@ public class Lion {
                     System.out.println("    Noted. I've removed this task:");
                     System.out.println("      " + deletedTask);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
+                    break;
                 }
-                else {
+                case UNKNOWN:
                     throw new LionException("I'm sorry, but I don't know what that means :-(");
+                case BYE:
+                    break;
                 }
-            }
-            catch (LionException e){
+            } catch (LionException e) {
                 System.out.println("    OOPS!!! " + e.getMessage());
             }
 

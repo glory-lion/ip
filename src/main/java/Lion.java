@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Lion {
@@ -16,6 +17,13 @@ public class Lion {
 
         Task[] list = new Task[100];
         int taskCount = 0;
+        try{
+            taskCount = Storage.load(list);
+        }
+        catch(IOException e) {
+            System.out.println("    OOPS!!! Failed to load previous tasks: " + e.getMessage());
+        }
+
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         while (CommandType.from(input) != CommandType.BYE) {
@@ -40,6 +48,12 @@ public class Lion {
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
+
+                    try {
+                        Storage.save(list, taskCount);
+                    } catch (IOException e) {
+                        System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
+                    }
                     break;
                 }
                 case DEADLINE: {
@@ -55,6 +69,12 @@ public class Lion {
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
+
+                    try {
+                        Storage.save(list, taskCount);
+                    } catch (IOException e) {
+                        System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
+                    }
                     break;
                 }
                 case EVENT: {
@@ -73,6 +93,12 @@ public class Lion {
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("      " + list[taskCount - 1]);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
+
+                    try {
+                        Storage.save(list, taskCount);
+                    } catch (IOException e) {
+                        System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
+                    }
                     break;
                 }
                 case MARK: {
@@ -82,7 +108,14 @@ public class Lion {
 
                     System.out.println("    Nice! I've marked this task as done:");
                     System.out.println("     [X] " + list[taskNumber].getDescription());
+
+                    try {
+                        Storage.save(list, taskCount);
+                    } catch (IOException e) {
+                        System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
+                    }
                     break;
+
                 }
                 case UNMARK: {
                     String number = input.substring(7);
@@ -91,6 +124,12 @@ public class Lion {
 
                     System.out.println("    OK! I've marked this task as not done yet:");
                     System.out.println("     [ ] " + list[taskNumber].getDescription());
+
+                    try {
+                        Storage.save(list, taskCount);
+                    } catch (IOException e) {
+                        System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
+                    }
                     break;
                 }
                 case DELETE: {
@@ -105,6 +144,11 @@ public class Lion {
                     System.out.println("    Noted. I've removed this task:");
                     System.out.println("      " + deletedTask);
                     System.out.println("    Now you have " + taskCount + " tasks in the list");
+                    try {
+                        Storage.save(list, taskCount);
+                    } catch (IOException e) {
+                        System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
+                    }
                     break;
                 }
                 case UNKNOWN:

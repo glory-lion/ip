@@ -1,9 +1,18 @@
-public class Deadline extends Task {
-    protected String by;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
-    public Deadline(String description, String by) {
+public class Deadline extends Task {
+    protected LocalDateTime by; //store as a real date
+
+    public Deadline(String description, String byText) {
         super(description);
-        this.by = by;
+        DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+        try {
+            this.by = LocalDateTime.parse(byText.trim(), inputFormat);
+        } catch (DateTimeParseException e) {
+            this.by = LocalDateTime.now();
+        }
     }
     @Override
     public String getTypeIcon() {
@@ -12,6 +21,8 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return super.toString() + " (by: " + by + ")";
+        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("MMM dd yyyy h:mm a");
+        String formattedDateTime = by.format(outputFormat);
+        return super.toString() + " (by: " + formattedDateTime + ")";
     }
 }

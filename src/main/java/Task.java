@@ -8,7 +8,7 @@ public abstract class Task {
     }
 
     public String getStatusIcon() {
-        return (isDone ? "X" : " ");
+        return (isDone ? "1" : "0");
     }
     public String getDescription() {
         return this.description;
@@ -26,6 +26,6 @@ public abstract class Task {
 
     @Override
     public String toString() {
-        return "[" + getTypeIcon() + "][" + getStatusIcon() + "] " + description;
+        return  getTypeIcon() + " | " + getStatusIcon() + " | " + description;
     }
  }

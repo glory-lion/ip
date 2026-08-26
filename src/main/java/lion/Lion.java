@@ -1,4 +1,4 @@
-import lion.*;
+package lion;
 
 import java.io.IOException;
 

@@ -1,7 +1,7 @@
 package lion;
 
 /**
- * Represents the commands that Lion understands.
+ * Represents the commands that lion.Lion understands.
  */
 public enum CommandType {
     LIST,

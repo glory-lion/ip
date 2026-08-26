@@ -1,3 +1,5 @@
+package lion;
+
 /**
  * Represents the commands that Lion understands.
  */

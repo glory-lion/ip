@@ -1,5 +1,6 @@
+import lion.*;
+
 import java.io.IOException;
-import java.util.Scanner;
 
 public class Lion {
     public static void main(String[] args) {

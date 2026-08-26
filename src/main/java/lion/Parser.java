@@ -1,3 +1,5 @@
+package lion;
+
 public class Parser {
     public CommandType getCommandType(String input) {
         return CommandType.from(input);

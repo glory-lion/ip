@@ -42,6 +42,12 @@ public class Storage {
         return count;
     }
 
+    public static TaskList loadTaskList() throws IOException {
+        Task[] tasks = new Task[100];
+        int count = load(tasks);
+        return new TaskList(tasks, count);
+    }
+
     private static Task decode(String line) {
         String[] parts = line.split("\\s*\\|\\s*");
         String type = parts[0];

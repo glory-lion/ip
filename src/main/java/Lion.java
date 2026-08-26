@@ -9,108 +9,99 @@ public class Lion {
                 + "| |_| | |_| |   <  __/\n"
                 + "|____/ \\__,_|_|\\_\\___|\n";
         String line = " ________________________________";
-        System.out.println(banner);
-        System.out.println(line);
-        System.out.println("    Hello! I'm Lion.");
-        System.out.println("    What can I do for you?");
-        System.out.println(line);
 
-        Task[] list = new Task[100];
-        int taskCount = 0;
+        Ui ui = new Ui();
+        ui.showWelcome(banner, line);
+
+        TaskList tasks;
         try{
-            taskCount = Storage.load(list);
+            tasks = Storage.loadTaskList();
         }
         catch(IOException e) {
             System.out.println("    OOPS!!! Failed to load previous tasks: " + e.getMessage());
+            tasks = new TaskList();
         }
 
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        while (CommandType.from(input) != CommandType.BYE) {
-            System.out.println(line);
+        Parser parser = new Parser();
+        String input = ui.readCommand();
+        while (parser.getCommandType(input) != CommandType.BYE) {
+            ui.showLine(line);
             try {
-                CommandType command = CommandType.from(input);
+                CommandType command = parser.getCommandType(input);
                 switch (command) {
                 case LIST:
                     System.out.println("    Here are the tasks in your list:");
-                    for (int i = 0; i < taskCount; i++) {
-                        System.out.println("    " + (i + 1) + "." + list[i]);
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println("    " + (i + 1) + "." + tasks.get(i));
                     }
                     break;
                 case TODO: {
-                    String details = input.substring(4).trim();
+                    String details = parser.getTodoDescription(input);
                     if (details.isEmpty()) {
                         throw new LionException("The description of a todo cannot be empty.");
                     }
-                    list[taskCount] = new Todo(details);
-                    taskCount++;
+                    Task newTask = new Todo(details);
+                    tasks.add(newTask);
 
                     System.out.println("    Got it. I've added this task:");
-                    System.out.println("      " + list[taskCount - 1]);
-                    System.out.println("    Now you have " + taskCount + " tasks in the list");
+                    System.out.println("      " + newTask);
+                    System.out.println("    Now you have " + tasks.size() + " tasks in the list");
 
                     try {
-                        Storage.save(list, taskCount);
+                        tasks.save();
                     } catch (IOException e) {
                         System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
                     }
                     break;
                 }
                 case DEADLINE: {
-                    String details = input.substring(9);
-                    String[] parts = details.split(" /by ");
-
+                    String[] parts = parser.getDeadlineParts(input);
                     String description = parts[0];
                     String by = parts[1];
 
-                    list[taskCount] = new Deadline(description, by);
-                    taskCount++;
+                    Task newTask = new Deadline(description, by);
+                    tasks.add(newTask);
 
                     System.out.println("    Got it. I've added this task:");
-                    System.out.println("      " + list[taskCount - 1]);
-                    System.out.println("    Now you have " + taskCount + " tasks in the list");
+                    System.out.println("      " + newTask);
+                    System.out.println("    Now you have " + tasks.size() + " tasks in the list");
 
                     try {
-                        Storage.save(list, taskCount);
+                        tasks.save();
                     } catch (IOException e) {
                         System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
                     }
                     break;
                 }
                 case EVENT: {
-                    String details = input.substring(5).trim();
-                    String[] fromParts = details.split(" /from ");
-                    String[] toParts = fromParts[1].split(" /to ");
+                    String[] parts = parser.getEventParts(input);
 
-                    String description = fromParts[0];
-                    String from = toParts[0];
-                    String to = toParts[1];
-
-
-                    list[taskCount] = new Event(description, from, to);
-                    taskCount++;
+                    String description = parts[0];
+                    String from = parts[1];
+                    String to = parts[2];
+                    Task newTask = new Event(description, from, to);
+                    tasks.add(newTask);
 
                     System.out.println("    Got it. I've added this task:");
-                    System.out.println("      " + list[taskCount - 1]);
-                    System.out.println("    Now you have " + taskCount + " tasks in the list");
+                    System.out.println("      " + newTask);
+                    System.out.println("    Now you have " + tasks.size() + " tasks in the list");
 
                     try {
-                        Storage.save(list, taskCount);
+                        tasks.save();
                     } catch (IOException e) {
                         System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
                     }
                     break;
                 }
                 case MARK: {
-                    String number = input.substring(5);
-                    int taskNumber = Integer.parseInt(number) - 1;
-                    list[taskNumber].markAsDone();
+                    int taskNumber = parser.getTaskIndex(input, 5);
+                    tasks.mark(taskNumber);
 
                     System.out.println("    Nice! I've marked this task as done:");
-                    System.out.println("     [X] " + list[taskNumber].getDescription());
+                    System.out.println("     [X] " + tasks.get(taskNumber).getDescription());
 
                     try {
-                        Storage.save(list, taskCount);
+                        tasks.save();
                     } catch (IOException e) {
                         System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
                     }
@@ -118,34 +109,28 @@ public class Lion {
 
                 }
                 case UNMARK: {
-                    String number = input.substring(7);
-                    int taskNumber = Integer.parseInt(number) - 1;
-                    list[taskNumber].markAsNotDone();
+                    int taskNumber = parser.getTaskIndex(input, 7);
+                    tasks.unmark(taskNumber);
 
                     System.out.println("    OK! I've marked this task as not done yet:");
-                    System.out.println("     [ ] " + list[taskNumber].getDescription());
+                    System.out.println("     [ ] " + tasks.get(taskNumber).getDescription());
 
                     try {
-                        Storage.save(list, taskCount);
+                        tasks.save();
                     } catch (IOException e) {
                         System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
                     }
                     break;
                 }
                 case DELETE: {
-                    String number = input.substring(7);
-                    int taskNumber = Integer.parseInt(number) - 1;
-                    Task deletedTask = list[taskNumber];
-                    for (int i = taskNumber; i < taskCount - 1; i++) {
-                        list[i] = list[i + 1];
-                    }
-                    taskCount--;
-                    list[taskCount] = null;
+                    int taskNumber = parser.getTaskIndex(input, 7);
+                    Task deletedTask = tasks.delete(taskNumber);
+
                     System.out.println("    Noted. I've removed this task:");
                     System.out.println("      " + deletedTask);
-                    System.out.println("    Now you have " + taskCount + " tasks in the list");
+                    System.out.println("    Now you have " + tasks.size() + " tasks in the list");
                     try {
-                        Storage.save(list, taskCount);
+                        tasks.save();
                     } catch (IOException e) {
                         System.out.println("    OOPS!!! Failed to save tasks: " + e.getMessage());
                     }
@@ -160,12 +145,10 @@ public class Lion {
                 System.out.println("    OOPS!!! " + e.getMessage());
             }
 
-            System.out.println(line);
-            input = scanner.nextLine();
+            ui.showLine(line);
+            input = ui.readCommand();
         }
-        System.out.println(line);
-        System.out.println("    Bye. Hope to see you again soon!");
-        System.out.println(line);
+        ui.showGoodbye(line);
 
 
     }

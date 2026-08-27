@@ -18,7 +18,7 @@ public class Storage {
 
         try(FileWriter writer = new FileWriter(FILE_PATH)) {
             for(int i = 0; i < taskCount; i++) {
-                writer.write(tasks[i].toString());
+                writer.write(encode(tasks[i]));
                 writer.write(System.lineSeparator());
             }
         }
@@ -50,8 +50,27 @@ public class Storage {
         return new TaskList(tasks, count);
     }
 
-    private static Task decode(String line) {
-        String[] parts = line.split("\\s*\\|\\s*");
+    /**
+     * Converts a task to the stable, machine-readable representation used in the save file.
+     */
+    static String encode(Task task) {
+        String prefix = task.getTypeIcon() + " | " + task.getStatusIcon()
+                + " | " + task.getDescription();
+        if (task instanceof Deadline) {
+            return prefix + " | " + ((Deadline) task).getByForStorage();
+        }
+        if (task instanceof Event) {
+            Event event = (Event) task;
+            return prefix + " | " + event.getFrom() + " | " + event.getTo();
+        }
+        return prefix;
+    }
+
+    /**
+     * Restores one task from its machine-readable save-file representation.
+     */
+    static Task decode(String line) {
+        String[] parts = line.split("\\s*\\|\\s*", -1);
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
@@ -59,8 +78,8 @@ public class Storage {
         Task task;
         switch(type) {
             case "T": task = new Todo(description); break;
-            case "D": task = new Deadline(description, ""); break;
-            case "E": task = new Event(description, "", ""); break;
+            case "D": task = new Deadline(description, parts[3]); break;
+            case "E": task = new Event(description, parts[3], parts[4]); break;
             default:  task = new Todo(description);
         }
         if(isDone) {
@@ -69,4 +88,3 @@ public class Storage {
         return task;
     }
 }
-

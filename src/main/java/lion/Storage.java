@@ -6,10 +6,24 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Saves tasks to disk and restores them between application runs.
+ */
 public class Storage {
     private static final String DIRECTORY_PATH = "data";
     private static final String FILE_PATH = DIRECTORY_PATH + File.separator + "lion.txt";
 
+    /** Creates a storage helper that uses the application's default data file. */
+    public Storage() {
+    }
+
+    /**
+     * Writes the active tasks to the application's data file.
+     *
+     * @param tasks array containing the tasks to save
+     * @param taskCount number of active tasks in the array
+     * @throws IOException if the data directory or file cannot be written
+     */
     public static void save(Task[] tasks, int taskCount) throws IOException {
         File directory = new File(DIRECTORY_PATH);
         if(!directory.exists()) {
@@ -24,6 +38,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads saved tasks into the supplied array.
+     *
+     * @param tasks destination array for restored tasks
+     * @return number of tasks loaded
+     * @throws IOException if the save file exists but cannot be read
+     */
     public static int load(Task[] tasks) throws IOException {
         File file = new File(FILE_PATH);
         if(!file.exists()) {
@@ -44,6 +65,12 @@ public class Storage {
         return count;
     }
 
+    /**
+     * Creates a task list containing all tasks currently stored on disk.
+     *
+     * @return restored task list, or an empty list when no save file exists
+     * @throws IOException if the save file cannot be read
+     */
     public static TaskList loadTaskList() throws IOException {
         Task[] tasks = new Task[100];
         int count = load(tasks);
@@ -52,6 +79,9 @@ public class Storage {
 
     /**
      * Converts a task to the stable, machine-readable representation used in the save file.
+     *
+     * @param task task to encode
+     * @return one line suitable for the save file
      */
     static String encode(Task task) {
         String prefix = task.getTypeIcon() + " | " + task.getStatusIcon()
@@ -68,6 +98,9 @@ public class Storage {
 
     /**
      * Restores one task from its machine-readable save-file representation.
+     *
+     * @param line one encoded task from the save file
+     * @return restored task
      */
     static Task decode(String line) {
         String[] parts = line.split("\\s*\\|\\s*", -1);

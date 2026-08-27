@@ -4,14 +4,23 @@ package lion;
  * Represents the commands that lion.Lion understands.
  */
 public enum CommandType {
+    /** Displays all saved tasks. */
     LIST,
+    /** Adds a task without date or time details. */
     TODO,
+    /** Adds a task with a due date and time. */
     DEADLINE,
+    /** Adds a task with start and end details. */
     EVENT,
+    /** Marks a task as complete. */
     MARK,
+    /** Marks a task as incomplete. */
     UNMARK,
+    /** Removes a task. */
     DELETE,
+    /** Exits the application. */
     BYE,
+    /** Represents input that does not match a supported command. */
     UNKNOWN;
 
     /**

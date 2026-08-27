@@ -2,7 +2,19 @@ package lion;
 
 import java.io.IOException;
 
+/**
+ * Starts and coordinates the Lion task-management application.
+ */
 public class Lion {
+    /** Creates the application entry-point object. */
+    public Lion() {
+    }
+
+    /**
+     * Runs the command loop until the user enters the {@code bye} command.
+     *
+     * @param args command-line arguments; currently unused
+     */
     public static void main(String[] args) {
         String banner = " ____        _        \n"
                 + "|  _ \\ _   _| | _____ \n"

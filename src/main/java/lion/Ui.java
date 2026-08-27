@@ -16,8 +16,8 @@ public class Ui {
     /**
      * Displays the application banner and welcome message.
      *
-     * @param banner application banner
-     * @param line separator used around messages
+     * @param banner application banner.
+     * @param line separator used around messages.
      */
     public void showWelcome(String banner, String line) {
         System.out.println(banner);
@@ -30,7 +30,7 @@ public class Ui {
     /**
      * Displays a message separator.
      *
-     * @param line separator to display
+     * @param line separator to display.
      */
     public void showLine(String line) {
         System.out.println(line);
@@ -39,7 +39,7 @@ public class Ui {
     /**
      * Displays a message to the user.
      *
-     * @param message message to display
+     * @param message message to display.
      */
     public void showMessage(String message) {
         System.out.println(message);
@@ -48,7 +48,7 @@ public class Ui {
     /**
      * Reads the next complete command from standard input.
      *
-     * @return command entered by the user
+     * @return command entered by the user.
      */
     public String readCommand() {
         return scanner.nextLine();
@@ -57,7 +57,7 @@ public class Ui {
     /**
      * Displays the farewell message.
      *
-     * @param line separator used around the message
+     * @param line separator used around the message.
      */
     public void showGoodbye(String line) {
         System.out.println(line);

@@ -26,8 +26,8 @@ public enum CommandType {
     /**
      * Identifies the command represented by the first word of the user's input.
      *
-     * @param input full line entered by the user
-     * @return the matching command, or {@link #UNKNOWN} if there is no match
+     * @param input full line entered by the user.
+     * @return the matching command, or {@link #UNKNOWN} if there is no match.
      */
     public static CommandType from(String input) {
         String trimmedInput = input.trim();

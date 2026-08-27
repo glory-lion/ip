@@ -16,8 +16,8 @@ public class Deadline extends Task {
     /**
      * Creates a deadline from its description and date-time text.
      *
-     * @param description description of the task
-     * @param byText deadline formatted as {@code d/M/yyyy HHmm}
+     * @param description description of the task.
+     * @param byText deadline formatted as {@code d/M/yyyy HHmm}.
      */
     public Deadline(String description, String byText) {
         super(description);
@@ -31,7 +31,7 @@ public class Deadline extends Task {
     /**
      * Returns the one-letter icon used to identify deadline tasks.
      *
-     * @return {@code D}
+     * @return {@code D}.
      */
     @Override
     public String getTypeIcon() {
@@ -41,7 +41,7 @@ public class Deadline extends Task {
     /**
      * Returns the deadline in the stable format used in the save file.
      *
-     * @return deadline formatted as {@code d/M/yyyy HHmm}
+     * @return deadline formatted as {@code d/M/yyyy HHmm}.
      */
     public String getByForStorage() {
         return by.format(STORAGE_FORMAT);
@@ -50,7 +50,7 @@ public class Deadline extends Task {
     /**
      * Returns a display-friendly representation of this deadline.
      *
-     * @return deadline status, description, and formatted due date
+     * @return deadline status, description, and formatted due date.
      */
     @Override
     public String toString() {

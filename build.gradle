@@ -51,6 +51,7 @@ shadowJar {
     archiveFileName = 'lion.jar'
 }
 
+
 run {
     standardInput = System.in
 }

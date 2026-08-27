@@ -68,4 +68,14 @@ public class Parser {
         String number = input.substring(prefixLength).trim();
         return Integer.parseInt(number) - 1;
     }
+
+    /**
+     * Extracts and trims the keyword from a find command.
+     *
+     * @param input find command entered by the user.
+     * @return search keyword, possibly empty.
+     */
+    public String getFindKeyword(String input) {
+        return input.substring(4).trim();
+    }
 }

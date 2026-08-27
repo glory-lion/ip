@@ -53,4 +53,31 @@ public class TaskListTest {
         tasks.unmark(0);
         assertEquals("0", tasks.get(0).getStatusIcon());
     }
+
+    @Test
+    void find_matchingDescriptions_returnsMatchesInOriginalOrder() {
+        TaskList tasks = new TaskList();
+        Task firstMatch = new Todo("read book");
+        Task nonMatch = new Todo("write notes");
+        Task secondMatch = new Deadline("return book", "2/12/2026 1800");
+        tasks.add(firstMatch);
+        tasks.add(nonMatch);
+        tasks.add(secondMatch);
+
+        TaskList matches = tasks.find("book");
+
+        assertEquals(2, matches.size());
+        assertSame(firstMatch, matches.get(0));
+        assertSame(secondMatch, matches.get(1));
+    }
+
+    @Test
+    void find_noMatchingDescription_returnsEmptyList() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+
+        TaskList matches = tasks.find("notes");
+
+        assertEquals(0, matches.size());
+    }
 }

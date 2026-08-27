@@ -148,6 +148,19 @@ public class Lion {
                         }
                         break;
                     }
+                    case FIND: {
+                        String keyword = parser.getFindKeyword(input);
+                        if (keyword.isEmpty()) {
+                            throw new LionException("The find keyword cannot be empty.");
+                        }
+
+                        TaskList matches = tasks.find(keyword);
+                        System.out.println("    Here are the matching tasks in your list:");
+                        for (int i = 0; i < matches.size(); i++) {
+                            System.out.println("    " + (i + 1) + "." + matches.get(i));
+                        }
+                        break;
+                    }
                     case UNKNOWN:
                         throw new LionException("I'm sorry, but I don't know what that means :-(");
                     case BYE:

@@ -90,6 +90,23 @@ public class TaskList {
     }
 
     /**
+     * Returns tasks whose descriptions contain the given keyword.
+     * Matching is case-sensitive and preserves the original task order.
+     *
+     * @param keyword keyword to find in task descriptions.
+     * @return task list containing the matching tasks.
+     */
+    public TaskList find(String keyword) {
+        TaskList matches = new TaskList();
+        for (int i = 0; i < size; i++) {
+            if (tasks[i].getDescription().contains(keyword)) {
+                matches.add(tasks[i]);
+            }
+        }
+        return matches;
+    }
+
+    /**
      * Saves the active tasks to disk.
      *
      * @throws IOException if the tasks cannot be written.

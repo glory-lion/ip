@@ -47,4 +47,9 @@ public class ParserTest {
         assertEquals(0, parser.getTaskIndex("mark 1", 5));
         assertEquals(11, parser.getTaskIndex("delete   12  ", 7));
     }
+
+    @Test
+    void getFindKeyword_keywordWithSpaces_returnsTrimmedKeyword() {
+        assertEquals("read book", parser.getFindKeyword("find   read book  "));
+    }
 }

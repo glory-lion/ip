@@ -18,6 +18,8 @@ public enum CommandType {
     UNMARK,
     /** Removes a task. */
     DELETE,
+    /** Finds tasks whose descriptions contain a keyword. */
+    FIND,
     /** Exits the application. */
     BYE,
     /** Represents input that does not match a supported command. */

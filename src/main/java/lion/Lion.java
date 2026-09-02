@@ -16,11 +16,11 @@ public class Lion {
      * @param args command-line arguments; currently unused.
      */
     public static void main(String[] args) {
-        String banner = " ____        _        \n"
-                + "|  _ \\ _   _| | _____ \n"
-                + "| | | | | | | |/ / _ \\\n"
-                + "| |_| | |_| |   <  __/\n"
-                + "|____/ \\__,_|_|\\_\\___|\n";
+        String banner = " _     _             \n"
+                + "| |   (_) ___  _ __  \n"
+                + "| |   | |/ _ \\| '_ \\ \n"
+                + "| |___| | (_) | | | |\n"
+                + "|_____|_|\\___/|_| |_|\n";
         String line = " ________________________________";
 
         Ui ui = new Ui();
@@ -165,6 +165,8 @@ public class Lion {
                         throw new LionException("I'm sorry, but I don't know what that means :-(");
                     case BYE:
                         break;
+                    default:
+                        throw new AssertionError("Unexpected command type: " + command);
                 }
             } catch (LionException e) {
                 System.out.println("    OOPS!!! " + e.getMessage());

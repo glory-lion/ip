@@ -1,0 +1,4 @@
+T | 0 | read book
+E | 0 | book | 8pm | 10pm
+T | 0 | homework
+D | 0 | ip | 2/9/2026 1206

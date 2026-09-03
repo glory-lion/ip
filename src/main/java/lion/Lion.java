@@ -43,7 +43,7 @@ public class Lion {
         try {
             tasks = Storage.loadTaskList();
         } catch (IOException e) {
-            System.out.println("    OOPS!!! Failed to load previous tasks: " + e.getMessage());
+            ui.showMessage("    OOPS!!! Failed to load previous tasks: " + e.getMessage());
             tasks = new TaskList();
         }
 
@@ -58,9 +58,9 @@ public class Lion {
 
                 switch (command) {
                     case LIST:
-                        System.out.println("    Here are the tasks in your list:");
+                        ui.showMessage("    Here are the tasks in your list:");
                         for (int i = 0; i < tasks.size(); i++) {
-                            System.out.println("    " + (i + 1) + "." + tasks.get(i));
+                            ui.showMessage("    " + (i + 1) + "." + tasks.get(i));
                         }
                         break;
 
@@ -75,16 +75,15 @@ public class Lion {
                         Task newTask = new Todo(details);
                         tasks.add(newTask);
 
-                        System.out.println("    Got it. I've added this task:");
-                        System.out.println("      " + newTask);
-                        System.out.println(
+                        ui.showMessage(
+                                "    Got it. I've added this task:",
+                                "      " + newTask,
                                 "    Now you have " + tasks.size() + " tasks in the list");
 
                         try {
                             tasks.save();
                         } catch (IOException e) {
-                            System.out.println(
-                                    "    OOPS!!! Failed to save tasks: " + e.getMessage());
+                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
                         }
                         break;
                     }
@@ -97,16 +96,15 @@ public class Lion {
                         Task newTask = new Deadline(description, by);
                         tasks.add(newTask);
 
-                        System.out.println("    Got it. I've added this task:");
-                        System.out.println("      " + newTask);
-                        System.out.println(
+                        ui.showMessage(
+                                "    Got it. I've added this task:",
+                                "      " + newTask,
                                 "    Now you have " + tasks.size() + " tasks in the list");
 
                         try {
                             tasks.save();
                         } catch (IOException e) {
-                            System.out.println(
-                                    "    OOPS!!! Failed to save tasks: " + e.getMessage());
+                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
                         }
                         break;
                     }
@@ -121,16 +119,15 @@ public class Lion {
                         Task newTask = new Event(description, from, to);
                         tasks.add(newTask);
 
-                        System.out.println("    Got it. I've added this task:");
-                        System.out.println("      " + newTask);
-                        System.out.println(
+                        ui.showMessage(
+                                "    Got it. I've added this task:",
+                                "      " + newTask,
                                 "    Now you have " + tasks.size() + " tasks in the list");
 
                         try {
                             tasks.save();
                         } catch (IOException e) {
-                            System.out.println(
-                                    "    OOPS!!! Failed to save tasks: " + e.getMessage());
+                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
                         }
                         break;
                     }
@@ -139,15 +136,14 @@ public class Lion {
                         int taskNumber = parser.getTaskIndex(input, 5);
                         tasks.mark(taskNumber);
 
-                        System.out.println("    Nice! I've marked this task as done:");
-                        System.out.println(
+                        ui.showMessage(
+                                "    Nice! I've marked this task as done:",
                                 "     [X] " + tasks.get(taskNumber).getDescription());
 
                         try {
                             tasks.save();
                         } catch (IOException e) {
-                            System.out.println(
-                                    "    OOPS!!! Failed to save tasks: " + e.getMessage());
+                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
                         }
                         break;
                     }
@@ -156,16 +152,14 @@ public class Lion {
                         int taskNumber = parser.getTaskIndex(input, 7);
                         tasks.unmark(taskNumber);
 
-                        System.out.println(
-                                "    OK! I've marked this task as not done yet:");
-                        System.out.println(
+                        ui.showMessage(
+                                "    OK! I've marked this task as not done yet:",
                                 "     [ ] " + tasks.get(taskNumber).getDescription());
 
                         try {
                             tasks.save();
                         } catch (IOException e) {
-                            System.out.println(
-                                    "    OOPS!!! Failed to save tasks: " + e.getMessage());
+                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
                         }
                         break;
                     }
@@ -174,16 +168,15 @@ public class Lion {
                         int taskNumber = parser.getTaskIndex(input, 7);
                         Task deletedTask = tasks.delete(taskNumber);
 
-                        System.out.println("    Noted. I've removed this task:");
-                        System.out.println("      " + deletedTask);
-                        System.out.println(
+                        ui.showMessage(
+                                "    Noted. I've removed this task:",
+                                "      " + deletedTask,
                                 "    Now you have " + tasks.size() + " tasks in the list");
 
                         try {
                             tasks.save();
                         } catch (IOException e) {
-                            System.out.println(
-                                    "    OOPS!!! Failed to save tasks: " + e.getMessage());
+                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
                         }
                         break;
                     }
@@ -197,12 +190,10 @@ public class Lion {
 
                         TaskList matches = tasks.find(keyword);
 
-                        System.out.println(
-                                "    Here are the matching tasks in your list:");
+                        ui.showMessage("    Here are the matching tasks in your list:");
 
                         for (int i = 0; i < matches.size(); i++) {
-                            System.out.println(
-                                    "    " + (i + 1) + "." + matches.get(i));
+                            ui.showMessage("    " + (i + 1) + "." + matches.get(i));
                         }
                         break;
                     }
@@ -219,7 +210,7 @@ public class Lion {
                                 "Unexpected command type: " + command);
                 }
             } catch (LionException e) {
-                System.out.println("    OOPS!!! " + e.getMessage());
+                ui.showMessage("    OOPS!!! " + e.getMessage());
             }
 
             ui.showLine(line);

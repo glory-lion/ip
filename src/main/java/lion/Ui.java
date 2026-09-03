@@ -37,12 +37,14 @@ public class Ui {
     }
 
     /**
-     * Displays a message to the user.
+     * Displays one or more lines of a message to the user, one per line.
      *
-     * @param message message to display.
+     * @param lines lines to display; may be a single line or several related lines.
      */
-    public void showMessage(String message) {
-        System.out.println(message);
+    public void showMessage(String... lines) {
+        for (String line : lines) {
+            System.out.println(line);
+        }
     }
 
     /**

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  * Saves tasks to disk and restores them between application runs.
@@ -34,11 +36,15 @@ public class Storage {
             directory.mkdirs();
         }
 
+        // Built as one string, rather than writing each line separately, so that
+        // the only place in this method that can throw IOException is the single
+        // write() call below; encode() itself never throws.
+        String content = Arrays.stream(tasks, 0, taskCount)
+                .map(task -> encode(task) + System.lineSeparator())
+                .collect(Collectors.joining());
+
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
-            for (int i = 0; i < taskCount; i++) {
-                writer.write(encode(tasks[i]));
-                writer.write(System.lineSeparator());
-            }
+            writer.write(content);
         }
     }
 

@@ -50,13 +50,27 @@ public class DialogBox extends HBox {
         dialog.getStyleClass().add("reply-label");
     }
 
+    /**
+     * Creates a dialog box showing the user's message, aligned to the right.
+     *
+     * @param text message text to display.
+     * @param img user's display picture.
+     * @return dialog box in the user's default (unflipped) layout.
+     */
     public static DialogBox getUserDialog(String text, Image img) {
         return new DialogBox(text, img);
     }
 
+    /**
+     * Creates a dialog box showing Lion's reply, flipped to the left.
+     *
+     * @param text message text to display.
+     * @param img Lion's display picture.
+     * @return dialog box flipped so its picture and text swap sides.
+     */
     public static DialogBox getLionDialog(String text, Image img) {
-        var db = new DialogBox(text, img);
-        db.flip();
-        return db;
+        DialogBox dialogBox = new DialogBox(text, img);
+        dialogBox.flip();
+        return dialogBox;
     }
 }

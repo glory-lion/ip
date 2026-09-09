@@ -26,6 +26,10 @@ public class Lion {
     /**
      * Runs the command loop until the user enters the {@code bye} command.
      *
+     * <p>Command handling itself lives in {@link #getResponse(String)} so that
+     * the CLI and the GUI share exactly one implementation of each command;
+     * this method only adds the CLI's four-space message margin on top of it.
+     *
      * @param args command-line arguments; currently unused.
      */
     public static void main(String[] args) {
@@ -39,185 +43,35 @@ public class Lion {
         Ui ui = new Ui();
         ui.showWelcome(banner, line);
 
-        TaskList tasks;
-        try {
-            tasks = Storage.loadTaskList();
-        } catch (IOException e) {
-            ui.showMessage("    OOPS!!! Failed to load previous tasks: " + e.getMessage());
-            tasks = new TaskList();
-        }
-
-        Parser parser = new Parser();
+        Lion lion = new Lion();
         String input = ui.readCommand();
 
-        while (parser.getCommandType(input) != CommandType.BYE) {
+        while (CommandType.from(input) != CommandType.BYE) {
             ui.showLine(line);
 
-            try {
-                CommandType command = parser.getCommandType(input);
-
-                switch (command) {
-                    case LIST:
-                        ui.showMessage("    Here are the tasks in your list:");
-                        for (int i = 0; i < tasks.size(); i++) {
-                            ui.showMessage("    " + (i + 1) + "." + tasks.get(i));
-                        }
-                        break;
-
-                    case TODO: {
-                        String details = parser.getTodoDescription(input);
-
-                        if (details.isEmpty()) {
-                            throw new LionException(
-                                    "The description of a todo cannot be empty.");
-                        }
-
-                        Task newTask = new Todo(details);
-                        tasks.add(newTask);
-
-                        ui.showMessage(
-                                "    Got it. I've added this task:",
-                                "      " + newTask,
-                                "    Now you have " + tasks.size() + " tasks in the list");
-
-                        try {
-                            tasks.save();
-                        } catch (IOException e) {
-                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case DEADLINE: {
-                        String[] parts = parser.getDeadlineParts(input);
-                        String description = parts[0];
-                        String by = parts[1];
-
-                        Task newTask = new Deadline(description, by);
-                        tasks.add(newTask);
-
-                        ui.showMessage(
-                                "    Got it. I've added this task:",
-                                "      " + newTask,
-                                "    Now you have " + tasks.size() + " tasks in the list");
-
-                        try {
-                            tasks.save();
-                        } catch (IOException e) {
-                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case EVENT: {
-                        String[] parts = parser.getEventParts(input);
-
-                        String description = parts[0];
-                        String from = parts[1];
-                        String to = parts[2];
-
-                        Task newTask = new Event(description, from, to);
-                        tasks.add(newTask);
-
-                        ui.showMessage(
-                                "    Got it. I've added this task:",
-                                "      " + newTask,
-                                "    Now you have " + tasks.size() + " tasks in the list");
-
-                        try {
-                            tasks.save();
-                        } catch (IOException e) {
-                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case MARK: {
-                        int taskNumber = parser.getTaskIndex(input, 5);
-                        tasks.mark(taskNumber);
-
-                        ui.showMessage(
-                                "    Nice! I've marked this task as done:",
-                                "     [X] " + tasks.get(taskNumber).getDescription());
-
-                        try {
-                            tasks.save();
-                        } catch (IOException e) {
-                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case UNMARK: {
-                        int taskNumber = parser.getTaskIndex(input, 7);
-                        tasks.unmark(taskNumber);
-
-                        ui.showMessage(
-                                "    OK! I've marked this task as not done yet:",
-                                "     [ ] " + tasks.get(taskNumber).getDescription());
-
-                        try {
-                            tasks.save();
-                        } catch (IOException e) {
-                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case DELETE: {
-                        int taskNumber = parser.getTaskIndex(input, 7);
-                        Task deletedTask = tasks.delete(taskNumber);
-
-                        ui.showMessage(
-                                "    Noted. I've removed this task:",
-                                "      " + deletedTask,
-                                "    Now you have " + tasks.size() + " tasks in the list");
-
-                        try {
-                            tasks.save();
-                        } catch (IOException e) {
-                            ui.showMessage("    OOPS!!! Failed to save tasks: " + e.getMessage());
-                        }
-                        break;
-                    }
-
-                    case FIND: {
-                        String keyword = parser.getFindKeyword(input);
-
-                        if (keyword.isEmpty()) {
-                            throw new LionException("The find keyword cannot be empty.");
-                        }
-
-                        TaskList matches = tasks.find(keyword);
-
-                        ui.showMessage("    Here are the matching tasks in your list:");
-
-                        for (int i = 0; i < matches.size(); i++) {
-                            ui.showMessage("    " + (i + 1) + "." + matches.get(i));
-                        }
-                        break;
-                    }
-
-                    case UNKNOWN:
-                        throw new LionException(
-                                "I'm sorry, but I don't know what that means :-(");
-
-                    case BYE:
-                        break;
-
-                    default:
-                        throw new AssertionError(
-                                "Unexpected command type: " + command);
-                }
-            } catch (LionException e) {
-                ui.showMessage("    OOPS!!! " + e.getMessage());
-            }
+            String response = lion.getResponse(input);
+            ui.showMessage(indentForCli(response));
 
             ui.showLine(line);
             input = ui.readCommand();
         }
 
         ui.showGoodbye(line);
+    }
+
+    /**
+     * Adds the CLI's four-space message margin to every line of a response.
+     *
+     * @param response response produced by {@link #getResponse(String)}.
+     * @return each line of the response prefixed with a four-space margin.
+     */
+    private static String[] indentForCli(String response) {
+        String[] lines = response.split("\n");
+        String[] indentedLines = new String[lines.length];
+        for (int i = 0; i < lines.length; i++) {
+            indentedLines[i] = "    " + lines[i];
+        }
+        return indentedLines;
     }
 
     /**
@@ -254,13 +108,13 @@ public class Lion {
 
                     Task newTask = new Todo(details);
                     tasks.add(newTask);
-                    saveTasks();
 
                     return "Got it. I've added this task:\n"
                             + newTask
                             + "\nNow you have "
                             + tasks.size()
-                            + " tasks in the list";
+                            + " tasks in the list"
+                            + saveTasks();
                 }
 
                 case DEADLINE: {
@@ -268,13 +122,13 @@ public class Lion {
 
                     Task newTask = new Deadline(parts[0], parts[1]);
                     tasks.add(newTask);
-                    saveTasks();
 
                     return "Got it. I've added this task:\n"
                             + newTask
                             + "\nNow you have "
                             + tasks.size()
-                            + " tasks in the list";
+                            + " tasks in the list"
+                            + saveTasks();
                 }
 
                 case EVENT: {
@@ -282,45 +136,45 @@ public class Lion {
 
                     Task newTask = new Event(parts[0], parts[1], parts[2]);
                     tasks.add(newTask);
-                    saveTasks();
 
                     return "Got it. I've added this task:\n"
                             + newTask
                             + "\nNow you have "
                             + tasks.size()
-                            + " tasks in the list";
+                            + " tasks in the list"
+                            + saveTasks();
                 }
 
                 case MARK: {
                     int taskNumber = parser.getTaskIndex(input, 5);
                     tasks.mark(taskNumber);
-                    saveTasks();
 
                     return "Nice! I've marked this task as done:\n"
                             + "[X] "
-                            + tasks.get(taskNumber).getDescription();
+                            + tasks.get(taskNumber).getDescription()
+                            + saveTasks();
                 }
 
                 case UNMARK: {
                     int taskNumber = parser.getTaskIndex(input, 7);
                     tasks.unmark(taskNumber);
-                    saveTasks();
 
                     return "OK! I've marked this task as not done yet:\n"
                             + "[ ] "
-                            + tasks.get(taskNumber).getDescription();
+                            + tasks.get(taskNumber).getDescription()
+                            + saveTasks();
                 }
 
                 case DELETE: {
                     int taskNumber = parser.getTaskIndex(input, 7);
                     Task deletedTask = tasks.delete(taskNumber);
-                    saveTasks();
 
                     return "Noted. I've removed this task:\n"
                             + deletedTask
                             + "\nNow you have "
                             + tasks.size()
-                            + " tasks in the list";
+                            + " tasks in the list"
+                            + saveTasks();
                 }
 
                 case FIND: {
@@ -366,12 +220,16 @@ public class Lion {
 
     /**
      * Saves the current task list.
+     *
+     * @return a save-failure notice to append to the response, or an empty
+     *     string if the tasks were saved successfully.
      */
-    private void saveTasks() {
+    private String saveTasks() {
         try {
             tasks.save();
+            return "";
         } catch (IOException e) {
-            // Prevent the GUI from crashing if saving fails.
+            return "\nOOPS!!! Failed to save tasks: " + e.getMessage();
         }
     }
 }

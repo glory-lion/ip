@@ -1,6 +1,7 @@
 package lion;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -68,12 +69,9 @@ public class Lion {
      * @return each line of the response prefixed with a four-space margin.
      */
     private static String[] indentForCli(String response) {
-        String[] lines = response.split("\n");
-        String[] indentedLines = new String[lines.length];
-        for (int i = 0; i < lines.length; i++) {
-            indentedLines[i] = "    " + lines[i];
-        }
-        return indentedLines;
+        return Arrays.stream(response.split("\n"))
+                .map(responseLine -> "    " + responseLine)
+                .toArray(String[]::new);
     }
 
     /**

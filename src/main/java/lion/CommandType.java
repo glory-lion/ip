@@ -32,6 +32,11 @@ public enum CommandType {
      * @return the matching command, or {@link #UNKNOWN} if there is no match.
      */
     public static CommandType from(String input) {
+        // input.trim() would throw NullPointerException anyway, but the assertion
+        // documents that every caller is expected to supply a non-null line
+        // (Ui.readCommand() never returns null; MainWindow passes text-field text).
+        assert input != null : "command input must not be null";
+
         String trimmedInput = input.trim();
         if (trimmedInput.isEmpty()) {
             return UNKNOWN;

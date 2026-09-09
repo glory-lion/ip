@@ -25,6 +25,10 @@ public class Storage {
      * @throws IOException if the data directory or file cannot be written.
      */
     public static void save(Task[] tasks, int taskCount) throws IOException {
+        assert tasks != null : "task array must not be null";
+        assert taskCount >= 0 && taskCount <= tasks.length
+                : "taskCount must not exceed the given array's length";
+
         File directory = new File(DIRECTORY_PATH);
         if (!directory.exists()) {
             directory.mkdirs();
@@ -46,6 +50,8 @@ public class Storage {
      * @throws IOException if the save file exists but cannot be read.
      */
     public static int load(Task[] tasks) throws IOException {
+        assert tasks != null : "destination array must not be null";
+
         File file = new File(FILE_PATH);
         if (!file.exists()) {
             return 0;
@@ -103,6 +109,12 @@ public class Storage {
      */
     static Task decode(String line) {
         String[] parts = line.split("\\s*\\|\\s*", -1);
+        // Every line decoded here was written by encode() in this same class, so
+        // it must have at least the type, status, and description fields. A
+        // shorter line means the save file was corrupted or edited by hand.
+        assert parts.length >= 3
+                : "encoded task line must have at least type, status, and description fields";
+
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
@@ -113,9 +125,11 @@ public class Storage {
                 task = new Todo(description);
                 break;
             case "D":
+                assert parts.length >= 4 : "encoded deadline must include a 'by' field";
                 task = new Deadline(description, parts[3]);
                 break;
             case "E":
+                assert parts.length >= 5 : "encoded event must include 'from' and 'to' fields";
                 task = new Event(description, parts[3], parts[4]);
                 break;
             default:

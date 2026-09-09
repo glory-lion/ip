@@ -146,7 +146,7 @@ public class Lion {
                 }
 
                 case MARK: {
-                    int taskNumber = parser.getTaskIndex(input, 5);
+                    int taskNumber = parser.getTaskIndex(input, Parser.MARK_PREFIX_LENGTH);
                     tasks.mark(taskNumber);
 
                     return "Nice! I've marked this task as done:\n"
@@ -156,7 +156,7 @@ public class Lion {
                 }
 
                 case UNMARK: {
-                    int taskNumber = parser.getTaskIndex(input, 7);
+                    int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
                     tasks.unmark(taskNumber);
 
                     return "OK! I've marked this task as not done yet:\n"
@@ -166,7 +166,7 @@ public class Lion {
                 }
 
                 case DELETE: {
-                    int taskNumber = parser.getTaskIndex(input, 7);
+                    int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
                     Task deletedTask = tasks.delete(taskNumber);
 
                     return "Noted. I've removed this task:\n"

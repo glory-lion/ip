@@ -1,6 +1,8 @@
 package lion;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * Manages the ordered collection of tasks used by the application.
@@ -128,12 +130,19 @@ public class TaskList {
         assert keyword != null : "search keyword must not be null";
 
         TaskList matches = new TaskList();
-        for (int i = 0; i < size; i++) {
-            if (tasks[i].getDescription().contains(keyword)) {
-                matches.add(tasks[i]);
-            }
-        }
+        stream()
+                .filter(task -> task.getDescription().contains(keyword))
+                .forEach(matches::add);
         return matches;
+    }
+
+    /**
+     * Returns a stream over the active tasks, in their current order.
+     *
+     * @return stream of the active tasks.
+     */
+    public Stream<Task> stream() {
+        return Arrays.stream(tasks, 0, size);
     }
 
     /**

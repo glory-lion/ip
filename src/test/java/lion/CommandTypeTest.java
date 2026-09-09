@@ -21,6 +21,7 @@ public class CommandTypeTest {
         assertEquals(CommandType.UNMARK, CommandType.from("unmark 1"));
         assertEquals(CommandType.DELETE, CommandType.from("delete 1"));
         assertEquals(CommandType.FIND, CommandType.from("find book"));
+        assertEquals(CommandType.HELP, CommandType.from("help"));
         assertEquals(CommandType.BYE, CommandType.from("bye"));
     }
 

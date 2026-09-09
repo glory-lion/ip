@@ -196,12 +196,19 @@ public class Lion {
                     return "Here are the matching tasks in your list:" + formatNumberedList(matches);
                 }
 
+                case HELP:
+                    return "Here are the available commands:" + Arrays.stream(CommandType.values())
+                            .filter(type -> type != CommandType.UNKNOWN)
+                            .map(type -> "\n" + type.name().toLowerCase() + " - " + type.getDescription())
+                            .collect(Collectors.joining());
+
                 case BYE:
                     return "Bye. Hope to see you again soon!";
 
                 case UNKNOWN:
                     throw new LionException(
-                            "I'm sorry, but I don't know what that means :-(");
+                            "I'm sorry, but I don't know what that means :-(\n"
+                            + "Type 'help' to see the list of available commands.");
 
                 default:
                     throw new AssertionError(

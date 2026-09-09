@@ -6,12 +6,15 @@ import java.io.IOException;
  * Manages the ordered collection of tasks used by the application.
  */
 public class TaskList {
+    /** Maximum number of tasks the fixed-size backing array can hold. */
+    public static final int MAX_TASKS = 100;
+
     private final Task[] tasks;
     private int size;
 
-    /** Creates an empty task list with capacity for 100 tasks. */
+    /** Creates an empty task list with capacity for {@value #MAX_TASKS} tasks. */
     public TaskList() {
-        this.tasks = new Task[100];
+        this.tasks = new Task[MAX_TASKS];
         this.size = 0;
     }
 

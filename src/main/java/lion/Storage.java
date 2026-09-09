@@ -77,7 +77,7 @@ public class Storage {
      * @throws IOException if the save file cannot be read.
      */
     public static TaskList loadTaskList() throws IOException {
-        Task[] tasks = new Task[100];
+        Task[] tasks = new Task[TaskList.MAX_TASKS];
         int count = load(tasks);
         return new TaskList(tasks, count);
     }

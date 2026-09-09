@@ -15,6 +15,10 @@ public abstract class Task {
      * @param description description of the task.
      */
     public Task(String description) {
+        // A null description would only surface later as a NullPointerException
+        // in toString() or getDescription(), far from where it was introduced.
+        assert description != null : "task description must not be null";
+
         this.description = description;
         this.isDone = false;
     }

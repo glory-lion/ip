@@ -21,11 +21,17 @@ public class Deadline extends Task {
      */
     public Deadline(String description, String byText) {
         super(description);
+        assert byText != null : "deadline date-time text must not be null";
+
         try {
             this.by = LocalDateTime.parse(byText.trim(), STORAGE_FORMAT);
         } catch (DateTimeParseException e) {
             this.by = LocalDateTime.now();
         }
+
+        // Both branches above assign `by`, so callers of getByForStorage()/
+        // toString() can always rely on it being set.
+        assert by != null : "by must be set by either the parsed value or the fallback";
     }
 
     /**

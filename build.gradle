@@ -73,6 +73,10 @@ shadowJar {
 
 run {
     standardInput = System.in
+    // Gradle's JavaExec-based `run` task disables assertions by default, unlike
+    // the `test` task. Enable them here so the assert statements added
+    // throughout the codebase are actually checked during development.
+    enableAssertions = true
 }
 
 checkstyle {

@@ -60,8 +60,8 @@ public class Storage {
         int count = 0;
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                String line = scanner.nextLine(); // T | 1 | buy boook
-                tasks[count] = decode(line); // turn into task object
+                String line = scanner.nextLine();
+                tasks[count] = decode(line);
                 count++;
             }
         } catch (FileNotFoundException e) {
@@ -103,6 +103,9 @@ public class Storage {
 
     /**
      * Restores one task from its machine-readable save-file representation.
+     *
+     * <p>Each line is pipe-delimited as produced by {@link #encode(Task)},
+     * e.g. {@code T | 1 | buy book} for a completed todo.
      *
      * @param line one encoded task from the save file.
      * @return restored task.

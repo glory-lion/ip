@@ -18,6 +18,11 @@ public class Event extends Task {
      */
     public Event(String description, String from, String to) {
         super(description);
+        // Both fields are always supplied by Parser.getEventParts() or
+        // Storage.decode(); a null here would only fail later, in toString().
+        assert from != null : "event start text must not be null";
+        assert to != null : "event end text must not be null";
+
         this.from = from;
         this.to = to;
     }

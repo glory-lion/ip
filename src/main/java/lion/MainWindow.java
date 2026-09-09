@@ -33,16 +33,19 @@ public class MainWindow extends AnchorPane {
     private Image lionImage =
             new Image(this.getClass().getResourceAsStream("/images/DaLion.png"));
 
+    /** Keeps the scroll pane pinned to the latest dialog as new ones are added. */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
     }
 
     /**
-     * Injects the Lion instance.
+     * Injects the Lion instance this window sends commands to.
+     *
+     * @param lion Lion instance backing this window.
      */
-    public void setLion(Lion l) {
-        lion = l;
+    public void setLion(Lion lion) {
+        this.lion = lion;
     }
 
     @FXML

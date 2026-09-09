@@ -31,6 +31,7 @@ public abstract class Task {
     public String getStatusIcon() {
         return (isDone ? "1" : "0");
     }
+
     /**
      * Returns the task description.
      *

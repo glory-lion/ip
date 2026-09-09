@@ -26,6 +26,11 @@ public class Deadline extends Task {
         try {
             this.by = LocalDateTime.parse(byText.trim(), STORAGE_FORMAT);
         } catch (DateTimeParseException e) {
+            // Fall back to "now" instead of propagating the exception: this
+            // constructor is also called by Storage.decode() while loading the
+            // save file, and rejecting one unparseable line there would stop
+            // the whole task list from loading. Losing the original date this
+            // way is an accepted trade-off for that resilience.
             this.by = LocalDateTime.now();
         }
 

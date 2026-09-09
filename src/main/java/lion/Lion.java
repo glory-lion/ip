@@ -1,6 +1,8 @@
 package lion;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Starts and coordinates the Lion task-management application.
@@ -75,6 +77,22 @@ public class Lion {
     }
 
     /**
+     * Formats a task list as a one-based numbered list, one task per line.
+     *
+     * <p>Used by both the {@code list} and {@code find} commands, which only
+     * differ in their header text and which task list they number.
+     *
+     * @param list tasks to format.
+     * @return each task on its own line prefixed with "\n" and its 1-based
+     *     number, or an empty string if the list has no tasks.
+     */
+    private static String formatNumberedList(TaskList list) {
+        return IntStream.range(0, list.size())
+                .mapToObj(i -> "\n" + (i + 1) + "." + list.get(i))
+                .collect(Collectors.joining());
+    }
+
+    /**
      * Generates a response to the user's command for the GUI.
      *
      * @param input user's input
@@ -86,17 +104,7 @@ public class Lion {
 
             switch (command) {
                 case LIST:
-                    StringBuilder listResponse =
-                            new StringBuilder("Here are the tasks in your list:");
-
-                    for (int i = 0; i < tasks.size(); i++) {
-                        listResponse.append("\n")
-                                .append(i + 1)
-                                .append(".")
-                                .append(tasks.get(i));
-                    }
-
-                    return listResponse.toString();
+                    return "Here are the tasks in your list:" + formatNumberedList(tasks);
 
                 case TODO: {
                     String details = parser.getTodoDescription(input);
@@ -187,18 +195,7 @@ public class Lion {
 
                     TaskList matches = tasks.find(keyword);
 
-                    StringBuilder findResponse =
-                            new StringBuilder(
-                                    "Here are the matching tasks in your list:");
-
-                    for (int i = 0; i < matches.size(); i++) {
-                        findResponse.append("\n")
-                                .append(i + 1)
-                                .append(".")
-                                .append(matches.get(i));
-                    }
-
-                    return findResponse.toString();
+                    return "Here are the matching tasks in your list:" + formatNumberedList(matches);
                 }
 
                 case BYE:

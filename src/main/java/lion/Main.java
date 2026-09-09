@@ -13,6 +13,9 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
+    private static final double MIN_WINDOW_HEIGHT = 220;
+    private static final double MIN_WINDOW_WIDTH = 417;
+
     private Lion lion = new Lion();
 
     @Override
@@ -28,8 +31,8 @@ public class Main extends Application {
 
             fxmlLoader.<MainWindow>getController().setLion(lion);
 
-            stage.setMinHeight(220);
-            stage.setMinWidth(417);
+            stage.setMinHeight(MIN_WINDOW_HEIGHT);
+            stage.setMinWidth(MIN_WINDOW_WIDTH);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

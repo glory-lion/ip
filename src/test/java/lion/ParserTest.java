@@ -23,6 +23,11 @@ public class ParserTest {
     }
 
     @Test
+    void getTodoDescription_wrongCommandType_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> parser.getTodoDescription("mark 1"));
+    }
+
+    @Test
     void getDeadlineParts_validCommand_returnsDescriptionAndDeadline() throws LionException {
         assertArrayEquals(
                 new String[] {"return book", "2/12/2019 1800"},
@@ -61,6 +66,16 @@ public class ParserTest {
     }
 
     @Test
+    void getDeadlineParts_emptyDateAfterSeparator_throwsLionException() {
+        assertThrows(LionException.class, () -> parser.getDeadlineParts("deadline return book /by"));
+    }
+
+    @Test
+    void getDeadlineParts_wrongCommandType_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> parser.getDeadlineParts("todo x"));
+    }
+
+    @Test
     void getEventParts_validCommand_returnsDescriptionStartAndEnd() throws LionException {
         assertArrayEquals(
                 new String[] {"project meeting", "Monday 2pm", "Monday 4pm"},
@@ -76,6 +91,26 @@ public class ParserTest {
     @Test
     void getEventParts_bareCommandWord_throwsLionException() {
         assertThrows(LionException.class, () -> parser.getEventParts("event"));
+    }
+
+    @Test
+    void getEventParts_emptyDescription_throwsLionException() {
+        assertThrows(LionException.class, () -> parser.getEventParts("event /from 8pm /to 10pm"));
+    }
+
+    @Test
+    void getEventParts_emptyStart_throwsLionException() {
+        assertThrows(LionException.class, () -> parser.getEventParts("event party /from /to 10pm"));
+    }
+
+    @Test
+    void getEventParts_emptyEnd_throwsLionException() {
+        assertThrows(LionException.class, () -> parser.getEventParts("event party /from 8pm /to"));
+    }
+
+    @Test
+    void getEventParts_wrongCommandType_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> parser.getEventParts("todo x"));
     }
 
     @Test
@@ -98,7 +133,17 @@ public class ParserTest {
     }
 
     @Test
+    void getTaskIndex_wrongPrefixLength_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> parser.getTaskIndex("mark 1", 999));
+    }
+
+    @Test
     void getFindKeyword_keywordWithSpaces_returnsTrimmedKeyword() {
         assertEquals("read book", parser.getFindKeyword("find   read book  "));
+    }
+
+    @Test
+    void getFindKeyword_wrongCommandType_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> parser.getFindKeyword("todo x"));
     }
 }

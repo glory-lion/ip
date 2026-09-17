@@ -1,7 +1,9 @@
 package lion;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +11,16 @@ import org.junit.jupiter.api.Test;
  * Tests event start/end range validation.
  */
 public class EventTest {
+
+    @Test
+    void constructor_nullFrom_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> new Event("desc", null, "to"));
+    }
+
+    @Test
+    void constructor_nullTo_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> new Event("desc", "from", null));
+    }
 
     @Test
     void validateRange_startBeforeEnd_doesNotThrow() {
@@ -43,5 +55,42 @@ public class EventTest {
         // date-time — this matches how Deadline's own strict parser rejects it, but
         // here it simply falls back to being incomparable free text rather than an error.
         assertDoesNotThrow(() -> Event.validateRange("30/2/2026 1800", "2/12/2026 1800"));
+    }
+
+    @Test
+    void validateRange_dateStartFreeTextEnd_doesNotThrow() {
+        assertDoesNotThrow(() -> Event.validateRange("2/12/2026 1800", "8pm"));
+    }
+
+    @Test
+    void hasSameDetails_sameDescriptionStartAndEnd_returnsTrue() {
+        Event first = new Event("meeting", "Monday 2pm", "Monday 4pm");
+        Event second = new Event("meeting", "Monday 2pm", "Monday 4pm");
+
+        assertTrue(first.hasSameDetails(second));
+    }
+
+    @Test
+    void hasSameDetails_differentDescription_returnsFalse() {
+        Event first = new Event("meeting", "Monday 2pm", "Monday 4pm");
+        Event second = new Event("standup", "Monday 2pm", "Monday 4pm");
+
+        assertFalse(first.hasSameDetails(second));
+    }
+
+    @Test
+    void hasSameDetails_differentStart_returnsFalse() {
+        Event first = new Event("meeting", "Monday 2pm", "Monday 4pm");
+        Event second = new Event("meeting", "Monday 3pm", "Monday 4pm");
+
+        assertFalse(first.hasSameDetails(second));
+    }
+
+    @Test
+    void hasSameDetails_differentEnd_returnsFalse() {
+        Event first = new Event("meeting", "Monday 2pm", "Monday 4pm");
+        Event second = new Event("meeting", "Monday 2pm", "Monday 5pm");
+
+        assertFalse(first.hasSameDetails(second));
     }
 }

@@ -1,16 +1,70 @@
 package lion;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Tests task-list operations that change task order or completion state.
  */
 public class TaskListTest {
+
+    @TempDir
+    Path tempDir;
+
+    @BeforeEach
+    void redirectStorageToTempDir() {
+        Storage.setDirectoryPathForTesting(tempDir.toString());
+    }
+
+    @AfterEach
+    void restoreStorage() {
+        Storage.setDirectoryPathForTesting(null);
+    }
+
+    @Test
+    void constructor_nullBackingList_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> new TaskList(null));
+    }
+
+    @Test
+    void add_nullTask_throwsAssertionError() {
+        TaskList tasks = new TaskList();
+
+        assertThrows(AssertionError.class, () -> tasks.add(null));
+    }
+
+    @Test
+    void find_nullKeyword_throwsAssertionError() {
+        TaskList tasks = new TaskList();
+
+        assertThrows(AssertionError.class, () -> tasks.find(null));
+    }
+
+    @Test
+    void save_writesTasksThatCanBeLoadedBack() throws Exception {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+        tasks.add(new Deadline("return book", "2/12/2026 1800"));
+
+        assertDoesNotThrow(tasks::save);
+
+        List<Task> reloaded = Storage.load();
+        assertEquals(2, reloaded.size());
+        assertEquals("[T] [ ] read book", reloaded.get(0).toString());
+        assertEquals("[D] [ ] return book (by: Dec 02 2026 6:00 PM)", reloaded.get(1).toString());
+    }
 
     @Test
     void add_multipleTasks_increasesSizeAndPreservesOrder() {

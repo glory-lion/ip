@@ -26,7 +26,7 @@ public class LionTest {
     void getResponse_unknownCommand_mentionsHelp() {
         String response = lion.getResponse("gibberish");
 
-        assertTrue(response.startsWith("OOPS!!!"));
+        assertTrue(response.startsWith("ROAR!!!"));
         assertTrue(response.contains("help"));
     }
 }

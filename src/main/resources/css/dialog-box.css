@@ -37,6 +37,5 @@
 
 .task-list-bubble {
     -fx-font-family: "Consolas", "Menlo", monospace;
-    -fx-font-size: 14px;
     -fx-line-spacing: 4px;
 }

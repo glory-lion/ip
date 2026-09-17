@@ -2,7 +2,8 @@ E | 0 | book | 8pm | 10pm
 T | 0 | homework
 D | 0 | ip | 2/9/2026 1206
 T | 0 | cs2100
-T | 0 | homework
+T | 1 | homework
+T | 1 | homework
 T | 0 | homework
 T | 0 | homework
 T | 0 | homework

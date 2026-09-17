@@ -1,6 +1,6 @@
 /*
  * Font-size scale used across the app: header 24px (bold), chat bubble text
- * 16px, task-list text 14px monospace (see dialog-box.css), input/button
+ * 16px, task-list text 16px monospace (see dialog-box.css), input/button
  * text 15px.
  */
 
@@ -49,7 +49,7 @@
 .app-header {
     -fx-background-color: linear-gradient(to right, #ffc16f, #ffb264);
     -fx-text-fill: #6e2f18;
-    -fx-font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", sans-serif;
+    -fx-font-family: "Verdana", "Helvetica Neue", "Segoe UI", sans-serif;
     -fx-font-size: 24px;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(90, 50, 10, 0.18), 6, 0.1, 0, 2);

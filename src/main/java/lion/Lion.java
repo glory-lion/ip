@@ -13,6 +13,9 @@ public class Lion {
     /** Prefix every error response begins with; see {@link #isErrorResponse(String)}. */
     private static final String ERROR_PREFIX = "ROAR!!! ";
 
+    /** Farewell response for the {@code bye} command. */
+    private static final String BYE_RESPONSE = "Roar! Until next time.";
+
     /** Header the {@code list} command's response begins with. */
     private static final String LIST_HEADER = "Here's what's in your pride:";
 
@@ -84,7 +87,7 @@ public class Lion {
                 case DELETE -> handleDelete(input);
                 case FIND -> handleFind(input);
                 case HELP -> handleHelp();
-                case BYE -> "Roar! Until next time.";
+                case BYE -> BYE_RESPONSE;
                 case UNKNOWN -> throw new LionException(
                         "Lion didn't quite catch that.\n"
                         + "Type 'help' to see what I can do.");
@@ -289,6 +292,16 @@ public class Lion {
      */
     public static boolean isErrorResponse(String response) {
         return response.startsWith(ERROR_PREFIX);
+    }
+
+    /**
+     * Returns whether a response produced by {@link #getResponse(String)} should close the GUI.
+     *
+     * @param response response text to check.
+     * @return true if the response is the standard farewell response.
+     */
+    public static boolean isByeResponse(String response) {
+        return response.equals(BYE_RESPONSE);
     }
 
     /**

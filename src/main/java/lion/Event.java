@@ -100,7 +100,11 @@ public class Event extends Task {
      */
     @Override
     public boolean hasSameDetails(Task other) {
+        if (!super.hasSameDetails(other)) {
+            return false;
+        }
+
         Event otherEvent = (Event) other;
-        return super.hasSameDetails(other) && from.equals(otherEvent.from) && to.equals(otherEvent.to);
+        return from.equals(otherEvent.from) && to.equals(otherEvent.to);
     }
 }

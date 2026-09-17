@@ -10,6 +10,15 @@ import java.util.stream.IntStream;
  */
 public class Lion {
 
+    /** Prefix every error response begins with; see {@link #isErrorResponse(String)}. */
+    private static final String ERROR_PREFIX = "OOPS!!! ";
+
+    /** Header the {@code list} command's response begins with. */
+    private static final String LIST_HEADER = "Here are the tasks in your list:";
+
+    /** Header the {@code find} command's response begins with. */
+    private static final String FIND_HEADER = "Here are the matching tasks in your list:";
+
     private TaskList tasks;
     private Parser parser;
 
@@ -27,54 +36,6 @@ public class Lion {
     }
 
     /**
-     * Runs the command loop until the user enters the {@code bye} command.
-     *
-     * <p>Command handling itself lives in {@link #getResponse(String)} so that
-     * the CLI and the GUI share exactly one implementation of each command;
-     * this method only adds the CLI's four-space message margin on top of it.
-     *
-     * @param args command-line arguments; currently unused.
-     */
-    public static void main(String[] args) {
-        String banner = " _     _             \n"
-                + "| |   (_) ___  _ __  \n"
-                + "| |   | |/ _ \\| '_ \\ \n"
-                + "| |___| | (_) | | | |\n"
-                + "|_____|_|\\___/|_| |_|\n";
-        String line = " ________________________________";
-
-        Ui ui = new Ui();
-        ui.showWelcome(banner, line);
-
-        Lion lion = new Lion();
-        String input = ui.readCommand();
-
-        while (CommandType.from(input) != CommandType.BYE) {
-            ui.showLine(line);
-
-            String response = lion.getResponse(input);
-            ui.showMessage(indentForCli(response));
-
-            ui.showLine(line);
-            input = ui.readCommand();
-        }
-
-        ui.showGoodbye(line);
-    }
-
-    /**
-     * Adds the CLI's four-space message margin to every line of a response.
-     *
-     * @param response response produced by {@link #getResponse(String)}.
-     * @return each line of the response prefixed with a four-space margin.
-     */
-    private static String[] indentForCli(String response) {
-        return Arrays.stream(response.split("\n"))
-                .map(responseLine -> "    " + responseLine)
-                .toArray(String[]::new);
-    }
-
-    /**
      * Formats a task list as a one-based numbered list, one task per line.
      *
      * <p>Used by both the {@code list} and {@code find} commands, which only
@@ -86,7 +47,7 @@ public class Lion {
      */
     private static String formatNumberedList(TaskList list) {
         return IntStream.range(0, list.size())
-                .mapToObj(i -> "\n" + (i + 1) + "." + list.get(i))
+                .mapToObj(i -> "\n" + (i + 1) + ". " + list.get(i))
                 .collect(Collectors.joining());
     }
 
@@ -98,126 +59,202 @@ public class Lion {
      */
     public String getResponse(String input) {
         try {
-            CommandType command = parser.getCommandType(input);
+            CommandType commandType = parser.getCommandType(input);
 
-            switch (command) {
-                case LIST:
-                    return "Here are the tasks in your list:" + formatNumberedList(tasks);
-
-                case TODO: {
-                    String details = parser.getTodoDescription(input);
-
-                    if (details.isEmpty()) {
-                        throw new LionException(
-                                "The description of a todo cannot be empty.");
-                    }
-
-                    Task newTask = new Todo(details);
-                    tasks.add(newTask);
-
-                    return "Got it. I've added this task:\n"
-                            + newTask
-                            + "\nNow you have "
-                            + tasks.size()
-                            + " tasks in the list"
-                            + saveTasks();
-                }
-
-                case DEADLINE: {
-                    String[] parts = parser.getDeadlineParts(input);
-
-                    Task newTask = new Deadline(parts[0], parts[1]);
-                    tasks.add(newTask);
-
-                    return "Got it. I've added this task:\n"
-                            + newTask
-                            + "\nNow you have "
-                            + tasks.size()
-                            + " tasks in the list"
-                            + saveTasks();
-                }
-
-                case EVENT: {
-                    String[] parts = parser.getEventParts(input);
-
-                    Task newTask = new Event(parts[0], parts[1], parts[2]);
-                    tasks.add(newTask);
-
-                    return "Got it. I've added this task:\n"
-                            + newTask
-                            + "\nNow you have "
-                            + tasks.size()
-                            + " tasks in the list"
-                            + saveTasks();
-                }
-
-                case MARK: {
-                    int taskNumber = parser.getTaskIndex(input, Parser.MARK_PREFIX_LENGTH);
-                    tasks.mark(taskNumber);
-
-                    return "Nice! I've marked this task as done:\n"
-                            + "[X] "
-                            + tasks.get(taskNumber).getDescription()
-                            + saveTasks();
-                }
-
-                case UNMARK: {
-                    int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
-                    tasks.unmark(taskNumber);
-
-                    return "OK! I've marked this task as not done yet:\n"
-                            + "[ ] "
-                            + tasks.get(taskNumber).getDescription()
-                            + saveTasks();
-                }
-
-                case DELETE: {
-                    int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
-                    Task deletedTask = tasks.delete(taskNumber);
-
-                    return "Noted. I've removed this task:\n"
-                            + deletedTask
-                            + "\nNow you have "
-                            + tasks.size()
-                            + " tasks in the list"
-                            + saveTasks();
-                }
-
-                case FIND: {
-                    String keyword = parser.getFindKeyword(input);
-
-                    if (keyword.isEmpty()) {
-                        throw new LionException(
-                                "The find keyword cannot be empty.");
-                    }
-
-                    TaskList matches = tasks.find(keyword);
-
-                    return "Here are the matching tasks in your list:" + formatNumberedList(matches);
-                }
-
-                case HELP:
-                    return "Here are the available commands:" + Arrays.stream(CommandType.values())
-                            .filter(type -> type != CommandType.UNKNOWN)
-                            .map(type -> "\n" + type.name().toLowerCase() + " - " + type.getDescription())
-                            .collect(Collectors.joining());
-
-                case BYE:
-                    return "Bye. Hope to see you again soon!";
-
-                case UNKNOWN:
-                    throw new LionException(
-                            "I'm sorry, but I don't know what that means :-(\n"
-                            + "Type 'help' to see the list of available commands.");
-
-                default:
-                    throw new AssertionError(
-                            "Unexpected command type: " + command);
-            }
+            // A switch expression, not a switch statement: the compiler checks this
+            // covers every CommandType constant, so there is no default case, and
+            // adding a new constant without a matching case here fails to compile
+            // rather than throwing at runtime.
+            return switch (commandType) {
+                case LIST -> LIST_HEADER + formatNumberedList(tasks);
+                case TODO -> handleTodo(input);
+                case DEADLINE -> handleDeadline(input);
+                case EVENT -> handleEvent(input);
+                case MARK -> handleMark(input);
+                case UNMARK -> handleUnmark(input);
+                case DELETE -> handleDelete(input);
+                case FIND -> handleFind(input);
+                case HELP -> handleHelp();
+                case BYE -> "Bye. Hope to see you again soon!";
+                case UNKNOWN -> throw new LionException(
+                        "I don't understand that command.\n"
+                        + "Type 'help' to see available commands.");
+            };
 
         } catch (LionException e) {
-            return "OOPS!!! " + e.getMessage();
+            return ERROR_PREFIX + e.getMessage();
         }
+    }
+
+    /**
+     * Handles the {@code todo} command.
+     *
+     * @param input full user input.
+     * @return response confirming the new task was added.
+     * @throws LionException if the todo description is empty.
+     */
+    private String handleTodo(String input) throws LionException {
+        String details = parser.getTodoDescription(input);
+
+        if (details.isEmpty()) {
+            throw new LionException("The description of a todo cannot be empty.");
+        }
+
+        Task newTask = new Todo(details);
+        tasks.add(newTask);
+
+        return formatTaskAddedMessage(newTask);
+    }
+
+    /**
+     * Handles the {@code deadline} command.
+     *
+     * @param input full user input.
+     * @return response confirming the new task was added.
+     */
+    private String handleDeadline(String input) {
+        String[] parts = parser.getDeadlineParts(input);
+
+        Task newTask = new Deadline(parts[0], parts[1]);
+        tasks.add(newTask);
+
+        return formatTaskAddedMessage(newTask);
+    }
+
+    /**
+     * Handles the {@code event} command.
+     *
+     * @param input full user input.
+     * @return response confirming the new task was added.
+     */
+    private String handleEvent(String input) {
+        String[] parts = parser.getEventParts(input);
+
+        Task newTask = new Event(parts[0], parts[1], parts[2]);
+        tasks.add(newTask);
+
+        return formatTaskAddedMessage(newTask);
+    }
+
+    /**
+     * Handles the {@code mark} command.
+     *
+     * @param input full user input.
+     * @return response confirming the task was marked as done.
+     */
+    private String handleMark(String input) {
+        int taskNumber = parser.getTaskIndex(input, Parser.MARK_PREFIX_LENGTH);
+        tasks.mark(taskNumber);
+
+        return "Nice! I've marked this task as done:\n"
+                + "[X] "
+                + tasks.get(taskNumber).getDescription()
+                + saveTasks();
+    }
+
+    /**
+     * Handles the {@code unmark} command.
+     *
+     * @param input full user input.
+     * @return response confirming the task was marked as not done.
+     */
+    private String handleUnmark(String input) {
+        int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
+        tasks.unmark(taskNumber);
+
+        return "OK! I've marked this task as not done yet:\n"
+                + "[ ] "
+                + tasks.get(taskNumber).getDescription()
+                + saveTasks();
+    }
+
+    /**
+     * Handles the {@code delete} command.
+     *
+     * @param input full user input.
+     * @return response confirming the task was removed.
+     */
+    private String handleDelete(String input) {
+        int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
+        Task deletedTask = tasks.delete(taskNumber);
+
+        return "Noted. I've removed this task:\n"
+                + deletedTask
+                + "\nNow you have "
+                + tasks.size()
+                + " tasks in the list"
+                + saveTasks();
+    }
+
+    /**
+     * Handles the {@code find} command.
+     *
+     * @param input full user input.
+     * @return response listing the matching tasks.
+     * @throws LionException if the find keyword is empty.
+     */
+    private String handleFind(String input) throws LionException {
+        String keyword = parser.getFindKeyword(input);
+
+        if (keyword.isEmpty()) {
+            throw new LionException("The find keyword cannot be empty.");
+        }
+
+        TaskList matches = tasks.find(keyword);
+
+        return FIND_HEADER + formatNumberedList(matches);
+    }
+
+    /**
+     * Handles the {@code help} command.
+     *
+     * @return response listing every available command and its description.
+     */
+    private static String handleHelp() {
+        return "Here are the available commands:" + Arrays.stream(CommandType.values())
+                .filter(type -> type != CommandType.UNKNOWN)
+                .map(type -> "\n" + type.name().toLowerCase() + " - " + type.getDescription())
+                .collect(Collectors.joining());
+    }
+
+    /**
+     * Formats the confirmation message shown after a task is added.
+     *
+     * @param newTask task that was just added.
+     * @return confirmation message, including a save-failure notice if saving failed.
+     */
+    private String formatTaskAddedMessage(Task newTask) {
+        return "Got it. I've added this task:\n"
+                + newTask
+                + "\nNow you have "
+                + tasks.size()
+                + " tasks in the list"
+                + saveTasks();
+    }
+
+    /**
+     * Returns whether a response produced by {@link #getResponse(String)} represents an error.
+     *
+     * @param response response text to check.
+     * @return true if the response is a standalone error message, i.e. it begins with the
+     *     standard error prefix rather than merely mentioning a failure partway through
+     *     an otherwise successful response (e.g. a save failure appended after a task
+     *     was still added).
+     */
+    public static boolean isErrorResponse(String response) {
+        return response.startsWith(ERROR_PREFIX);
+    }
+
+    /**
+     * Returns whether a response produced by {@link #getResponse(String)} is a numbered
+     * task list (from {@code list} or {@code find}), so the GUI can give it a visually
+     * distinct, scan-friendly style from ordinary conversational replies.
+     *
+     * @param response response text to check.
+     * @return true if the response begins with the {@code list} or {@code find} header.
+     */
+    public static boolean isTaskListResponse(String response) {
+        return response.startsWith(LIST_HEADER) || response.startsWith(FIND_HEADER);
     }
 
     /**
@@ -231,7 +268,7 @@ public class Lion {
             tasks.save();
             return "";
         } catch (IOException e) {
-            return "\nOOPS!!! Failed to save tasks: " + e.getMessage();
+            return "\n" + ERROR_PREFIX + "Failed to save tasks: " + e.getMessage();
         }
     }
 }

@@ -59,12 +59,21 @@ public abstract class Task {
     public abstract String getTypeIcon();
 
     /**
-     * Returns the task's storage-friendly base representation.
+     * Returns the display-friendly completion checkbox.
      *
-     * @return type, completion status, and description.
+     * @return {@code [X]} when complete, otherwise {@code [ ]}.
+     */
+    private String getStatusBox() {
+        return isDone ? "[X]" : "[ ]";
+    }
+
+    /**
+     * Returns the task's display-friendly base representation.
+     *
+     * @return type icon, completion checkbox, and description, e.g. {@code [T] [X] read book}.
      */
     @Override
     public String toString() {
-        return getTypeIcon() + " | " + getStatusIcon() + " | " + description;
+        return "[" + getTypeIcon() + "] " + getStatusBox() + " " + description;
     }
 }

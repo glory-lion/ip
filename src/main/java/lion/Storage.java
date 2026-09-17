@@ -4,32 +4,31 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 /**
  * Saves tasks to disk and restores them between application runs.
+ *
+ * <p>All members are static; this class is not meant to be instantiated.
  */
-public class Storage {
+public final class Storage {
     private static final String DIRECTORY_PATH = "data";
     private static final String FILE_PATH = DIRECTORY_PATH + File.separator + "lion.txt";
 
-    /** Creates a storage helper that uses the application's default data file. */
-    public Storage() {
+    private Storage() {
     }
 
     /**
      * Writes the active tasks to the application's data file.
      *
-     * @param tasks array containing the tasks to save.
-     * @param taskCount number of active tasks in the array.
+     * @param tasks tasks to save.
      * @throws IOException if the data directory or file cannot be written.
      */
-    public static void save(Task[] tasks, int taskCount) throws IOException {
-        assert tasks != null : "task array must not be null";
-        assert taskCount >= 0 && taskCount <= tasks.length
-                : "taskCount must not exceed the given array's length";
+    public static void save(List<Task> tasks) throws IOException {
+        assert tasks != null : "task list must not be null";
 
         File directory = new File(DIRECTORY_PATH);
         if (!directory.exists()) {
@@ -39,7 +38,7 @@ public class Storage {
         // Built as one string, rather than writing each line separately, so that
         // the only place in this method that can throw IOException is the single
         // write() call below; encode() itself never throws.
-        String content = Arrays.stream(tasks, 0, taskCount)
+        String content = tasks.stream()
                 .map(task -> encode(task) + System.lineSeparator())
                 .collect(Collectors.joining());
 
@@ -49,31 +48,27 @@ public class Storage {
     }
 
     /**
-     * Loads saved tasks into the supplied array.
+     * Loads all tasks saved in the application's data file.
      *
-     * @param tasks destination array for restored tasks.
-     * @return number of tasks loaded.
+     * @return restored tasks, in the order they were saved, or an empty list
+     *     if no save file exists.
      * @throws IOException if the save file exists but cannot be read.
      */
-    public static int load(Task[] tasks) throws IOException {
-        assert tasks != null : "destination array must not be null";
-
+    public static List<Task> load() throws IOException {
         File file = new File(FILE_PATH);
         if (!file.exists()) {
-            return 0;
+            return new ArrayList<>();
         }
 
-        int count = 0;
+        List<Task> tasks = new ArrayList<>();
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                tasks[count] = decode(line);
-                count++;
+                tasks.add(decode(scanner.nextLine()));
             }
         } catch (FileNotFoundException e) {
             throw new IOException("Save file not found", e);
         }
-        return count;
+        return tasks;
     }
 
     /**
@@ -83,9 +78,7 @@ public class Storage {
      * @throws IOException if the save file cannot be read.
      */
     public static TaskList loadTaskList() throws IOException {
-        Task[] tasks = new Task[TaskList.MAX_TASKS];
-        int count = load(tasks);
-        return new TaskList(tasks, count);
+        return new TaskList(load());
     }
 
     /**

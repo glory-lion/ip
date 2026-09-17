@@ -10,7 +10,7 @@ import java.time.format.DateTimeParseException;
 public class Deadline extends Task {
     private static final DateTimeFormatter STORAGE_FORMAT =
             DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
-    /** Due date and time stored as a value that can be formatted when needed. */
+    /** User-provided task deadline. */
     protected LocalDateTime by;
 
     /**

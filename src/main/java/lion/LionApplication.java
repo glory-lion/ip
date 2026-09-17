@@ -9,9 +9,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 /**
- * A GUI for Lion using FXML.
+ * The JavaFX application entry point that launches Lion's GUI.
  */
-public class Main extends Application {
+public class LionApplication extends Application {
 
     private static final double MIN_WINDOW_HEIGHT = 220;
     private static final double MIN_WINDOW_WIDTH = 417;
@@ -22,10 +22,10 @@ public class Main extends Application {
     public void start(Stage stage) {
         try {
             FXMLLoader fxmlLoader =
-                    new FXMLLoader(Main.class.getResource("/view/MainWindow.fxml"));
+                    new FXMLLoader(LionApplication.class.getResource("/view/MainWindow.fxml"));
 
-            AnchorPane ap = fxmlLoader.load();
-            Scene scene = new Scene(ap);
+            AnchorPane rootPane = fxmlLoader.load();
+            Scene scene = new Scene(rootPane);
 
             stage.setScene(scene);
 

@@ -79,6 +79,13 @@ public class EventTest {
     }
 
     @Test
+    void hasSameDetails_differentTaskType_returnsFalse() {
+        Event event = new Event("meeting", "Monday 2pm", "Monday 4pm");
+
+        assertFalse(event.hasSameDetails(new Todo("meeting")));
+    }
+
+    @Test
     void hasSameDetails_differentStart_returnsFalse() {
         Event first = new Event("meeting", "Monday 2pm", "Monday 4pm");
         Event second = new Event("meeting", "Monday 3pm", "Monday 4pm");

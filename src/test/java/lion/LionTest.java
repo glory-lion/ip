@@ -64,6 +64,11 @@ public class LionTest {
     }
 
     @Test
+    void isByeResponse_byeReply_returnsTrue() {
+        assertTrue(Lion.isByeResponse(lion.getResponse("bye")));
+    }
+
+    @Test
     void isTaskListResponse_ordinaryReply_returnsFalse() {
         assertFalse(Lion.isTaskListResponse(lion.getResponse("bye")));
     }

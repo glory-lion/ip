@@ -1,12 +1,17 @@
 package lion;
 
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Controller for the main GUI.
@@ -15,6 +20,18 @@ public class MainWindow extends AnchorPane {
 
     /** Greeting shown as Lion's first message when the window opens. */
     private static final String GREETING = "Roar! I'm Lion. Tell me what's on your to-do list today.";
+
+    private static final double BACKGROUND_DESIGN_WIDTH = 400.0;
+
+    private static final double BACKGROUND_DESIGN_HEIGHT = 600.0;
+
+    private static final double EXIT_DELAY_SECONDS = 0.8;
+
+    @FXML
+    private Pane chatBackground;
+
+    @FXML
+    private Group backgroundArt;
 
     @FXML
     private ScrollPane scrollPane;
@@ -39,6 +56,8 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     public void initialize() {
+        backgroundArt.scaleXProperty().bind(chatBackground.widthProperty().divide(BACKGROUND_DESIGN_WIDTH));
+        backgroundArt.scaleYProperty().bind(chatBackground.heightProperty().divide(BACKGROUND_DESIGN_HEIGHT));
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
         dialogContainer.getChildren().add(DialogBox.getLionDialog(GREETING, lionImage, false, false));
     }
@@ -76,5 +95,21 @@ public class MainWindow extends AnchorPane {
         );
 
         userInput.clear();
+
+        if (Lion.isByeResponse(response)) {
+            sendLionOffToRest();
+        }
+    }
+
+    /**
+     * Disables further input and closes the app after Lion's farewell bubble is visible.
+     */
+    private void sendLionOffToRest() {
+        userInput.setDisable(true);
+        sendButton.setDisable(true);
+
+        PauseTransition exitDelay = new PauseTransition(Duration.seconds(EXIT_DELAY_SECONDS));
+        exitDelay.setOnFinished(event -> Platform.exit());
+        exitDelay.play();
     }
 }

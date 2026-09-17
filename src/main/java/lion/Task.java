@@ -59,6 +59,20 @@ public abstract class Task {
     public abstract String getTypeIcon();
 
     /**
+     * Returns whether another task has the same type and description as this one, used
+     * to flag likely-duplicate tasks when adding a new one. {@link Deadline} and
+     * {@link Event} extend this to also compare their date fields.
+     *
+     * @param other task to compare against.
+     * @return true if the two tasks share the same type and description.
+     */
+    public boolean hasSameDetails(Task other) {
+        return other != null
+                && getClass() == other.getClass()
+                && description.equals(other.description);
+    }
+
+    /**
      * Returns the display-friendly completion checkbox.
      *
      * @return {@code [X]} when complete, otherwise {@code [ ]}.

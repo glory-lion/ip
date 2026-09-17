@@ -1,7 +1,9 @@
 package lion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -79,5 +81,45 @@ public class TaskListTest {
         TaskList matches = tasks.find("notes");
 
         assertEquals(0, matches.size());
+    }
+
+    @Test
+    void hasDuplicate_sameTypeAndDescription_returnsTrue() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+
+        assertTrue(tasks.hasDuplicate(new Todo("read book")));
+    }
+
+    @Test
+    void hasDuplicate_sameDescriptionDifferentType_returnsFalse() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+
+        assertFalse(tasks.hasDuplicate(new Deadline("read book", "2/12/2026 1800")));
+    }
+
+    @Test
+    void hasDuplicate_deadlineSameDescriptionDifferentDate_returnsFalse() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Deadline("return book", "2/12/2026 1800"));
+
+        assertFalse(tasks.hasDuplicate(new Deadline("return book", "3/12/2026 1800")));
+    }
+
+    @Test
+    void hasDuplicate_eventSameDescriptionAndTimes_returnsTrue() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Event("meeting", "Monday 2pm", "Monday 4pm"));
+
+        assertTrue(tasks.hasDuplicate(new Event("meeting", "Monday 2pm", "Monday 4pm")));
+    }
+
+    @Test
+    void hasDuplicate_noMatchingTask_returnsFalse() {
+        TaskList tasks = new TaskList();
+        tasks.add(new Todo("read book"));
+
+        assertFalse(tasks.hasDuplicate(new Todo("write notes")));
     }
 }

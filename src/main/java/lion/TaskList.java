@@ -86,6 +86,17 @@ public class TaskList {
     }
 
     /**
+     * Returns whether a task with the same details as the given task is already present.
+     *
+     * @param candidate task to check for duplicates of; not itself required to be in this list.
+     * @return true if an existing task has the same type, description, and (for
+     *     deadlines/events) date fields as the candidate.
+     */
+    public boolean hasDuplicate(Task candidate) {
+        return stream().anyMatch(existing -> existing.hasSameDetails(candidate));
+    }
+
+    /**
      * Returns tasks whose descriptions contain the given keyword.
      * Matching is case-sensitive and preserves the original task order.
      *

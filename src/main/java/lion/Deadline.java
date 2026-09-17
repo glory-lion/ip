@@ -1,8 +1,11 @@
 package lion;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a task that must be completed by a specific date and time.
@@ -10,6 +13,15 @@ import java.time.format.DateTimeParseException;
 public class Deadline extends Task {
     private static final DateTimeFormatter STORAGE_FORMAT =
             DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+
+    // Used only by validateByText()'s strict check, not by the lenient constructor
+    // below: DateTimeFormatter's default (SMART) resolution silently clamps an
+    // out-of-range day like 30 February to the nearest valid day (28 February) instead
+    // of rejecting it, so a manual parse plus LocalDateTime.of() — which does reject it
+    // — is needed to actually catch non-existent dates.
+    private static final Pattern STRICT_DATE_TIME_PATTERN =
+            Pattern.compile("(\\d{1,2})/(\\d{1,2})/(\\d{4})\\s+(\\d{2})(\\d{2})");
+
     /** User-provided task deadline. */
     protected LocalDateTime by;
 
@@ -47,6 +59,59 @@ public class Deadline extends Task {
     @Override
     public String getTypeIcon() {
         return "D";
+    }
+
+    /**
+     * Validates deadline date-time text without constructing a Deadline, so newly
+     * typed deadlines can be rejected with a clear message instead of silently falling
+     * back to "now" the way the lenient constructor above does for save-file resilience.
+     *
+     * @param byText candidate deadline text.
+     * @throws LionException if the text does not match {@code d/M/yyyy HHmm}, or names a
+     *     date that does not exist (e.g. 30/2/2019).
+     */
+    public static void validateByText(String byText) throws LionException {
+        if (parseStrict(byText) == null) {
+            throw new LionException("Lion can't make sense of that date — use d/M/yyyy HHmm "
+                    + "(e.g. 2/12/2019 1800), and check that the date actually exists.");
+        }
+    }
+
+    /**
+     * Strictly parses {@code d/M/yyyy HHmm} text, rejecting both malformed text and
+     * dates that do not exist on the calendar (e.g. 30 February).
+     *
+     * @param text candidate date-time text.
+     * @return the parsed date-time, or {@code null} if it is malformed or names a
+     *     date/time that does not exist.
+     */
+    static LocalDateTime parseStrict(String text) {
+        Matcher matcher = STRICT_DATE_TIME_PATTERN.matcher(text.trim());
+        if (!matcher.matches()) {
+            return null;
+        }
+
+        try {
+            return LocalDateTime.of(
+                    Integer.parseInt(matcher.group(3)),
+                    Integer.parseInt(matcher.group(2)),
+                    Integer.parseInt(matcher.group(1)),
+                    Integer.parseInt(matcher.group(4)),
+                    Integer.parseInt(matcher.group(5)));
+        } catch (DateTimeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns whether another task is a deadline with the same description and due date.
+     *
+     * @param other task to compare against.
+     * @return true if the two deadlines share the same description and due date.
+     */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return super.hasSameDetails(other) && by.equals(((Deadline) other).by);
     }
 
     /**

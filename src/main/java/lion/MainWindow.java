@@ -27,9 +27,6 @@ public class MainWindow extends AnchorPane {
 
     private Lion lion;
 
-    private Image userImage =
-            new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-
     private Image lionImage =
             new Image(this.getClass().getResourceAsStream("/images/DaLion.png"));
 
@@ -48,14 +45,27 @@ public class MainWindow extends AnchorPane {
         this.lion = lion;
     }
 
+    /**
+     * Sends the current text-field contents to Lion and renders both the
+     * user's message and Lion's reply as chat bubbles. Blank input (e.g. the
+     * user pressing enter on an empty field) is ignored rather than shown as
+     * an empty bubble.
+     */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
+
+        if (input.isBlank()) {
+            return;
+        }
+
         String response = lion.getResponse(input);
+        boolean isError = Lion.isErrorResponse(response);
+        boolean isTaskList = Lion.isTaskListResponse(response);
 
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getLionDialog(response, lionImage)
+                DialogBox.getUserDialog(input),
+                DialogBox.getLionDialog(response, lionImage, isError, isTaskList)
         );
 
         userInput.clear();

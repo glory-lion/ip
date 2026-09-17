@@ -18,6 +18,11 @@ public class LionApplication extends Application {
 
     private Lion lion = new Lion();
 
+    /**
+     * Loads the main window and shows it.
+     *
+     * @param stage primary stage supplied by the JavaFX runtime.
+     */
     @Override
     public void start(Stage stage) {
         try {

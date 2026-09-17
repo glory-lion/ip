@@ -1,6 +1,7 @@
 package lion;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,5 +37,10 @@ public class CommandTypeTest {
         assertEquals(CommandType.UNKNOWN, CommandType.from("   "));
         assertEquals(CommandType.UNKNOWN, CommandType.from("nonsense command"));
         assertEquals(CommandType.UNKNOWN, CommandType.from("listing"));
+    }
+
+    @Test
+    void from_nullInput_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> CommandType.from(null));
     }
 }

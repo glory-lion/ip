@@ -4,6 +4,7 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,8 +12,16 @@ import java.util.regex.Pattern;
  * Represents a task that must be completed by a specific date and time.
  */
 public class Deadline extends Task {
+    // Locale.ENGLISH is pinned explicitly, rather than left to the JVM's default
+    // locale, so the save file and the displayed date/time stay identical (numeric
+    // fields only, but consistent regardless) no matter what OS language the app runs
+    // under; DISPLAY_FORMAT below needs this even more, since it renders text
+    // (month name, AM/PM) that would otherwise vary by locale.
     private static final DateTimeFormatter STORAGE_FORMAT =
-            DateTimeFormatter.ofPattern("d/M/yyyy HHmm");
+            DateTimeFormatter.ofPattern("d/M/yyyy HHmm", Locale.ENGLISH);
+
+    private static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("MMM dd yyyy h:mm a", Locale.ENGLISH);
 
     // Used only by validateByText()'s strict check, not by the lenient constructor
     // below: DateTimeFormatter's default (SMART) resolution silently clamps an
@@ -130,8 +139,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toString() {
-        DateTimeFormatter outputFormat = DateTimeFormatter.ofPattern("MMM dd yyyy h:mm a");
-        String formattedDateTime = by.format(outputFormat);
+        String formattedDateTime = by.format(DISPLAY_FORMAT);
         return super.toString() + " (by: " + formattedDateTime + ")";
     }
 }

@@ -15,10 +15,35 @@ import java.util.stream.Collectors;
  * <p>All members are static; this class is not meant to be instantiated.
  */
 public final class Storage {
-    private static final String DIRECTORY_PATH = "data";
-    private static final String FILE_PATH = DIRECTORY_PATH + File.separator + "lion.txt";
+    private static final String DEFAULT_DIRECTORY_PATH = "data";
+
+    // Not final: setDirectoryPathForTesting() below redirects this to a temporary
+    // directory so tests can exercise save()/load() without touching the
+    // application's real save file.
+    private static String directoryPath = DEFAULT_DIRECTORY_PATH;
 
     private Storage() {
+    }
+
+    /**
+     * Redirects where tasks are saved to and loaded from, for use only by tests that
+     * must not touch the application's real save file.
+     *
+     * @param testDirectoryPath directory to use instead of the default, or {@code null}
+     *     to restore the default.
+     */
+    static void setDirectoryPathForTesting(String testDirectoryPath) {
+        directoryPath = testDirectoryPath != null ? testDirectoryPath : DEFAULT_DIRECTORY_PATH;
+    }
+
+    /**
+     * Returns the save file's path within the current directory (see
+     * {@link #setDirectoryPathForTesting(String)}).
+     *
+     * @return path to the save file.
+     */
+    private static String filePath() {
+        return directoryPath + File.separator + "lion.txt";
     }
 
     /**
@@ -30,7 +55,7 @@ public final class Storage {
     public static void save(List<Task> tasks) throws IOException {
         assert tasks != null : "task list must not be null";
 
-        File directory = new File(DIRECTORY_PATH);
+        File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdirs();
         }
@@ -42,7 +67,7 @@ public final class Storage {
                 .map(task -> encode(task) + System.lineSeparator())
                 .collect(Collectors.joining());
 
-        try (FileWriter writer = new FileWriter(FILE_PATH)) {
+        try (FileWriter writer = new FileWriter(filePath())) {
             writer.write(content);
         }
     }
@@ -55,7 +80,7 @@ public final class Storage {
      * @throws IOException if the save file exists but cannot be read.
      */
     public static List<Task> load() throws IOException {
-        File file = new File(FILE_PATH);
+        File file = new File(filePath());
         if (!file.exists()) {
             return new ArrayList<>();
         }

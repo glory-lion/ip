@@ -13,6 +13,9 @@ import javafx.scene.layout.VBox;
  */
 public class MainWindow extends AnchorPane {
 
+    /** Greeting shown as Lion's first message when the window opens. */
+    private static final String GREETING = "Roar! I'm Lion. Tell me what's on your to-do list today.";
+
     @FXML
     private ScrollPane scrollPane;
 
@@ -30,10 +33,14 @@ public class MainWindow extends AnchorPane {
     private Image lionImage =
             new Image(this.getClass().getResourceAsStream("/images/DaLion.png"));
 
-    /** Keeps the scroll pane pinned to the latest dialog as new ones are added. */
+    /**
+     * Keeps the scroll pane pinned to the latest dialog as new ones are added,
+     * and shows Lion's greeting as the first message in the conversation.
+     */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.getChildren().add(DialogBox.getLionDialog(GREETING, lionImage, false, false));
     }
 
     /**

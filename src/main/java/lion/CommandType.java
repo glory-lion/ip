@@ -5,11 +5,11 @@ package lion;
  */
 public enum CommandType {
     /** Displays all saved tasks. */
-    LIST("Shows all tasks."),
+    LIST("Shows every task in your pride."),
     /** Adds a task without date or time details. */
-    TODO("Adds a task without a date or time."),
+    TODO("Adds a plain task with no date or time."),
     /** Adds a task with a due date and time. */
-    DEADLINE("Adds a task with a due date and time."),
+    DEADLINE("Adds a task with a deadline to beat."),
     /** Adds a task with start and end details. */
     EVENT("Adds a task with a start and end time."),
     /** Marks a task as complete. */
@@ -17,13 +17,13 @@ public enum CommandType {
     /** Marks a task as incomplete. */
     UNMARK("Marks a task as not done."),
     /** Removes a task. */
-    DELETE("Removes a task."),
+    DELETE("Removes a task from your pride."),
     /** Finds tasks whose descriptions contain a keyword. */
-    FIND("Finds tasks whose description contains a keyword."),
+    FIND("Hunts down tasks matching a keyword."),
     /** Displays the list of available commands. */
     HELP("Shows this list of commands."),
     /** Exits the application. */
-    BYE("Exits the app."),
+    BYE("Sends Lion off to rest."),
     /** Represents input that does not match a supported command. */
     UNKNOWN("Represents input that does not match a supported command.");
 

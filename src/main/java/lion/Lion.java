@@ -11,13 +11,13 @@ import java.util.stream.IntStream;
 public class Lion {
 
     /** Prefix every error response begins with; see {@link #isErrorResponse(String)}. */
-    private static final String ERROR_PREFIX = "OOPS!!! ";
+    private static final String ERROR_PREFIX = "ROAR!!! ";
 
     /** Header the {@code list} command's response begins with. */
-    private static final String LIST_HEADER = "Here are the tasks in your list:";
+    private static final String LIST_HEADER = "Here's what's in your pride:";
 
     /** Header the {@code find} command's response begins with. */
-    private static final String FIND_HEADER = "Here are the matching tasks in your list:";
+    private static final String FIND_HEADER = "Lion tracked down these matching tasks:";
 
     private TaskList tasks;
     private Parser parser;
@@ -75,10 +75,10 @@ public class Lion {
                 case DELETE -> handleDelete(input);
                 case FIND -> handleFind(input);
                 case HELP -> handleHelp();
-                case BYE -> "Bye. Hope to see you again soon!";
+                case BYE -> "Roar! Until next time.";
                 case UNKNOWN -> throw new LionException(
-                        "I don't understand that command.\n"
-                        + "Type 'help' to see available commands.");
+                        "Lion didn't quite catch that.\n"
+                        + "Type 'help' to see what I can do.");
             };
 
         } catch (LionException e) {
@@ -97,7 +97,7 @@ public class Lion {
         String details = parser.getTodoDescription(input);
 
         if (details.isEmpty()) {
-            throw new LionException("The description of a todo cannot be empty.");
+            throw new LionException("Even Lion needs something to chase — the todo description can't be empty.");
         }
 
         Task newTask = new Todo(details);
@@ -146,7 +146,7 @@ public class Lion {
         int taskNumber = parser.getTaskIndex(input, Parser.MARK_PREFIX_LENGTH);
         tasks.mark(taskNumber);
 
-        return "Nice! I've marked this task as done:\n"
+        return "Lion's proud of you — task conquered:\n"
                 + "[X] "
                 + tasks.get(taskNumber).getDescription()
                 + saveTasks();
@@ -162,7 +162,7 @@ public class Lion {
         int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
         tasks.unmark(taskNumber);
 
-        return "OK! I've marked this task as not done yet:\n"
+        return "Back to the hunt — task reopened:\n"
                 + "[ ] "
                 + tasks.get(taskNumber).getDescription()
                 + saveTasks();
@@ -178,11 +178,11 @@ public class Lion {
         int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
         Task deletedTask = tasks.delete(taskNumber);
 
-        return "Noted. I've removed this task:\n"
+        return "Lion's let this one go:\n"
                 + deletedTask
-                + "\nNow you have "
+                + "\nYour pride now has "
                 + tasks.size()
-                + " tasks in the list"
+                + " tasks"
                 + saveTasks();
     }
 
@@ -197,7 +197,7 @@ public class Lion {
         String keyword = parser.getFindKeyword(input);
 
         if (keyword.isEmpty()) {
-            throw new LionException("The find keyword cannot be empty.");
+            throw new LionException("Give Lion a scent to follow — the search keyword can't be empty.");
         }
 
         TaskList matches = tasks.find(keyword);
@@ -224,11 +224,11 @@ public class Lion {
      * @return confirmation message, including a save-failure notice if saving failed.
      */
     private String formatTaskAddedMessage(Task newTask) {
-        return "Got it. I've added this task:\n"
+        return "Roar! Added to your pride:\n"
                 + newTask
-                + "\nNow you have "
+                + "\nYour pride now has "
                 + tasks.size()
-                + " tasks in the list"
+                + " tasks"
                 + saveTasks();
     }
 
@@ -268,7 +268,7 @@ public class Lion {
             tasks.save();
             return "";
         } catch (IOException e) {
-            return "\n" + ERROR_PREFIX + "Failed to save tasks: " + e.getMessage();
+            return "\n" + ERROR_PREFIX + "Lion couldn't stash your tasks safely: " + e.getMessage();
         }
     }
 }

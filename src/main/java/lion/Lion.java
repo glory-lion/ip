@@ -59,6 +59,15 @@ public class Lion {
      */
     public String getResponse(String input) {
         try {
+            // '|' is the field separator in the save file (see Storage.encode()); letting
+            // it through would silently corrupt or truncate whatever task it ends up in
+            // the next time the file is saved and reloaded.
+            if (input.contains("|")) {
+                throw new LionException(
+                        "Lion can't save tasks containing '|' — it's used internally to store your tasks. "
+                        + "Please remove it and try again.");
+            }
+
             CommandType commandType = parser.getCommandType(input);
 
             // A switch expression, not a switch statement: the compiler checks this
@@ -101,9 +110,10 @@ public class Lion {
         }
 
         Task newTask = new Todo(details);
+        boolean isDuplicate = tasks.hasDuplicate(newTask);
         tasks.add(newTask);
 
-        return formatTaskAddedMessage(newTask);
+        return formatTaskAddedMessage(newTask, isDuplicate);
     }
 
     /**
@@ -111,14 +121,18 @@ public class Lion {
      *
      * @param input full user input.
      * @return response confirming the new task was added.
+     * @throws LionException if the date is missing, malformed, or names a date that
+     *     does not exist (e.g. 30/2/2019).
      */
-    private String handleDeadline(String input) {
+    private String handleDeadline(String input) throws LionException {
         String[] parts = parser.getDeadlineParts(input);
+        Deadline.validateByText(parts[1]);
 
         Task newTask = new Deadline(parts[0], parts[1]);
+        boolean isDuplicate = tasks.hasDuplicate(newTask);
         tasks.add(newTask);
 
-        return formatTaskAddedMessage(newTask);
+        return formatTaskAddedMessage(newTask, isDuplicate);
     }
 
     /**
@@ -126,14 +140,18 @@ public class Lion {
      *
      * @param input full user input.
      * @return response confirming the new task was added.
+     * @throws LionException if {@code /from}/{@code /to} are missing or empty, or both
+     *     parse as full date-times with the start not strictly before the end.
      */
-    private String handleEvent(String input) {
+    private String handleEvent(String input) throws LionException {
         String[] parts = parser.getEventParts(input);
+        Event.validateRange(parts[1], parts[2]);
 
         Task newTask = new Event(parts[0], parts[1], parts[2]);
+        boolean isDuplicate = tasks.hasDuplicate(newTask);
         tasks.add(newTask);
 
-        return formatTaskAddedMessage(newTask);
+        return formatTaskAddedMessage(newTask, isDuplicate);
     }
 
     /**
@@ -141,9 +159,11 @@ public class Lion {
      *
      * @param input full user input.
      * @return response confirming the task was marked as done.
+     * @throws LionException if no valid task number is given, or it is out of range.
      */
-    private String handleMark(String input) {
+    private String handleMark(String input) throws LionException {
         int taskNumber = parser.getTaskIndex(input, Parser.MARK_PREFIX_LENGTH);
+        requireValidIndex(taskNumber);
         tasks.mark(taskNumber);
 
         return "Lion's proud of you — task conquered:\n"
@@ -157,9 +177,11 @@ public class Lion {
      *
      * @param input full user input.
      * @return response confirming the task was marked as not done.
+     * @throws LionException if no valid task number is given, or it is out of range.
      */
-    private String handleUnmark(String input) {
+    private String handleUnmark(String input) throws LionException {
         int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
+        requireValidIndex(taskNumber);
         tasks.unmark(taskNumber);
 
         return "Back to the hunt — task reopened:\n"
@@ -173,9 +195,11 @@ public class Lion {
      *
      * @param input full user input.
      * @return response confirming the task was removed.
+     * @throws LionException if no valid task number is given, or it is out of range.
      */
-    private String handleDelete(String input) {
+    private String handleDelete(String input) throws LionException {
         int taskNumber = parser.getTaskIndex(input, Parser.UNMARK_OR_DELETE_PREFIX_LENGTH);
+        requireValidIndex(taskNumber);
         Task deletedTask = tasks.delete(taskNumber);
 
         return "Lion's let this one go:\n"
@@ -184,6 +208,20 @@ public class Lion {
                 + tasks.size()
                 + " tasks"
                 + saveTasks();
+    }
+
+    /**
+     * Validates a zero-based task index against the current task list, so callers never
+     * pass an out-of-range index on to {@link TaskList}.
+     *
+     * @param index zero-based task index to validate.
+     * @throws LionException if the index is negative or beyond the last task.
+     */
+    private void requireValidIndex(int index) throws LionException {
+        if (index < 0 || index >= tasks.size()) {
+            throw new LionException("Task " + (index + 1) + " doesn't exist — your pride only has "
+                    + tasks.size() + " task(s).");
+        }
     }
 
     /**
@@ -221,10 +259,18 @@ public class Lion {
      * Formats the confirmation message shown after a task is added.
      *
      * @param newTask task that was just added.
-     * @return confirmation message, including a save-failure notice if saving failed.
+     * @param isDuplicate true if an existing task already has the same details, so the
+     *     user can be warned without blocking the (still valid) add.
+     * @return confirmation message, including a duplicate notice and/or a save-failure
+     *     notice if either applies.
      */
-    private String formatTaskAddedMessage(Task newTask) {
-        return "Roar! Added to your pride:\n"
+    private String formatTaskAddedMessage(Task newTask, boolean isDuplicate) {
+        String duplicateNotice = isDuplicate
+                ? "Heads up: this looks identical to a task already in your pride.\n"
+                : "";
+
+        return duplicateNotice
+                + "Roar! Added to your pride:\n"
                 + newTask
                 + "\nYour pride now has "
                 + tasks.size()

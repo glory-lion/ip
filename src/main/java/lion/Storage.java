@@ -63,7 +63,18 @@ public final class Storage {
         List<Task> tasks = new ArrayList<>();
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
-                tasks.add(decode(scanner.nextLine()));
+                String line = scanner.nextLine();
+                if (line.isBlank()) {
+                    continue;
+                }
+
+                try {
+                    tasks.add(decode(line));
+                } catch (IllegalArgumentException e) {
+                    // One corrupted or hand-edited line (wrong field count, unrecognized
+                    // status flag, etc.) should not cost the user every other saved task,
+                    // so it is skipped rather than failing the whole load.
+                }
             }
         } catch (FileNotFoundException e) {
             throw new IOException("Save file not found", e);
@@ -106,16 +117,21 @@ public final class Storage {
      * <p>Each line is pipe-delimited as produced by {@link #encode(Task)},
      * e.g. {@code T | 1 | buy book} for a completed todo.
      *
+     * <p>Validation here uses real conditional checks rather than {@code assert}, since
+     * assertions are disabled by default in a normally-run/packaged build (they only run
+     * under {@code -ea}, which the Gradle {@code run} task enables but a distributed jar
+     * does not) — a hand-edited or corrupted line must still be rejected reliably rather
+     * than being silently trusted and indexed out of bounds.
+     *
      * @param line one encoded task from the save file.
      * @return restored task.
+     * @throws IllegalArgumentException if the line does not have enough fields for its task type.
      */
     static Task decode(String line) {
         String[] parts = line.split("\\s*\\|\\s*", -1);
-        // Every line decoded here was written by encode() in this same class, so
-        // it must have at least the type, status, and description fields. A
-        // shorter line means the save file was corrupted or edited by hand.
-        assert parts.length >= 3
-                : "encoded task line must have at least type, status, and description fields";
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Corrupted save line (expected at least 3 fields): " + line);
+        }
 
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
@@ -127,11 +143,16 @@ public final class Storage {
                 task = new Todo(description);
                 break;
             case "D":
-                assert parts.length >= 4 : "encoded deadline must include a 'by' field";
+                if (parts.length < 4) {
+                    throw new IllegalArgumentException("Corrupted deadline line (missing 'by' field): " + line);
+                }
                 task = new Deadline(description, parts[3]);
                 break;
             case "E":
-                assert parts.length >= 5 : "encoded event must include 'from' and 'to' fields";
+                if (parts.length < 5) {
+                    throw new IllegalArgumentException(
+                            "Corrupted event line (missing 'from'/'to' fields): " + line);
+                }
                 task = new Event(description, parts[3], parts[4]);
                 break;
             default:
